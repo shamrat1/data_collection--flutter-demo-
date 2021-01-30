@@ -24,6 +24,7 @@ dependencies:
   http: ^0.12.2
   flutter:
     sdk: flutter
+  autocomplete_textfield: ^1.7.3
 
 
   # The following adds the Cupertino Icons font to your application.
