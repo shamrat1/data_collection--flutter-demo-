@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:data_collection/model/Hospitalmodel.dart';
+import 'package:data_collection/getdata/HospitalService.dart' as Hservice;
 
 class Hospital extends StatefulWidget {
   @override
@@ -50,52 +50,34 @@ class _HospitalState extends State<Hospital> {
     });
   }
 
-//retrive data
-  final String url = 'http://139.59.112.145/api/registration/helper/hospital';
-  List data;
+  //retrive data
+  List<Division> _divitions;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    this.getJsonData();
-  }
-
-  Future<String> getJsonData() async {
-    var response = await http
-        .get(Uri.encodeFull(url), headers: {"Content type", "application/json"});
-    print(response.body);
-
-    setState(() {
-      var convertDataToJson = JsonCodec().decode(response.body);
-      data = convertDataToJson['data'];
+    Hservice.HospitalService.getAllData().then((divisions) {
+      setState(() {
+        _divitions = divisions;
+      });
     });
-
-    return "Success";
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: new ListView.builder(
-            itemCount: data == null ? 0 : data.length,
-            itemBuilder: (BuildContext context, int index) {
-              return new Container(
-                child: new Center(
-                  child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      new Card(
-                        child: new Container(
-                          child: new Text(data[3]['name']),
-                          padding: const EdgeInsets.all(20.0),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              );
-            }));
+        body: Container(
+      color: Colors.white,
+      child: ListView.builder(
+          itemCount: null == _divitions ? 0 : _divitions.length,
+          itemBuilder: (BuildContext context, int index) {
+            Division division = _divitions[index];
+             return ListTile(
+              title: Text(division.name),
+            );
+          }),
+    ));
   }
 }
 
