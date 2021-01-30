@@ -1,5 +1,6 @@
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:data_collection/helperClass/surgeriesField.dart';
+import 'package:data_collection/helperClass/testFacilityField.dart';
 import 'package:data_collection/helperClass/testForAddButton.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -58,8 +59,12 @@ class _HospitalState extends State<Hospital> {
 
    //service, test_facility, surgery
   final _formKey = GlobalKey<FormState>();
+  final _surveyKey = GlobalKey<FormState>();
+  final _testFacilityKey = GlobalKey<FormState>();
  // TextEditingController _nameController;
   static List<String> friendsList = [null];
+  static List<String> surgeryList = [null];
+  static List<String> testFacilityList = [null];
 
   @override
   void initState() {
@@ -213,14 +218,14 @@ class _HospitalState extends State<Hospital> {
           child: Form(
             key: _formKey,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(5.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                   children: [ 
                     Text('Services', style: TextStyle(
                       fontWeight: FontWeight.w700, fontSize: 16),),
                       ..._getFriends(),
-                       SizedBox(height: 40,
+                       SizedBox(height: 20,
                        ),
                       //  FlatButton(
                       //    onPressed: (){
@@ -238,30 +243,69 @@ class _HospitalState extends State<Hospital> {
         ),
         Container(
           child: Form(
-            key: _formKey,
+            key: _surveyKey,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(5.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                   children: [ 
-                    Text('Services', style: TextStyle(
+                    Text('Surgey', style: TextStyle(
                       fontWeight: FontWeight.w700, fontSize: 16),),
                       ..._getSurgeries(),
-                       SizedBox(height: 40,
+                       SizedBox(height: 20,
                        ),
-                       FlatButton(
-                         onPressed: (){
-                           if(_formKey.currentState.validate()){
-                              _formKey.currentState.save();
-                              }
-                              },
-                              child: Text('Submit'),
-                              color: Colors.green,
-                      ),
+                      //  FlatButton(
+                      //    onPressed: (){
+                      //      if(_surveyKey.currentState.validate()){
+                      //         _surveyKey.currentState.save();
+                      //         }
+                      //         },
+                      //         child: Text('Submit'),
+                      //         color: Colors.green,
+                      // ),
                   ],
               ),
             ),
           ),
+        ),
+        Container(
+          child: Form(
+            key: _testFacilityKey,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [ 
+                    Text('Test Facility', style: TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 16),),
+                      ..._getTestFacilities(),
+                       SizedBox(height: 20,
+                       ),
+                      //  FlatButton(
+                      //    onPressed: (){
+                      //      if(_surveyKey.currentState.validate()){
+                      //         _surveyKey.currentState.save();
+                      //         }
+                      //         },
+                      //         child: Text('Submit'),
+                      //         color: Colors.green,
+                      // ),
+                  ],
+              ),
+            ),
+          ),
+        ),
+        Container(
+          child: TextField(
+            decoration: InputDecoration(hintText: 'Branch Name'),
+          ),
+          padding: EdgeInsets.all(10.0),
+        ),
+        Container(
+          child: TextField(
+            decoration: InputDecoration(hintText: 'Reception No'),
+          ),
+          padding: EdgeInsets.all(10.0),
         ),
       ],
       ),
@@ -317,9 +361,9 @@ class _HospitalState extends State<Hospital> {
 
                           //surgery
                           List<Widget> _getSurgeries(){
-                          List<Widget> friendsTextFieldsList = [];
-                          for(int i=0; i<friendsList.length; i++){
-                            friendsTextFieldsList.add(
+                          List<Widget> surgeryTextFieldsList = [];
+                          for(int i=0; i<surgeryList.length; i++){
+                            surgeryTextFieldsList.add(
                               Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                                 child: Row(
@@ -327,14 +371,83 @@ class _HospitalState extends State<Hospital> {
                                     Expanded(child: SurgeriTextField(i)),
                                     SizedBox(width: 16,),
                                     // we need add button at last friends row only
-                                    _addRemoveButton(i == friendsList.length-1, i),
+                                    _surgeryAddRemoveButton(i == surgeryList.length-1, i),
                                   ],
                                 ),
                               )
                             );
                           }
-                          return friendsTextFieldsList;
+                          return surgeryTextFieldsList;
                         }
+
+                          Widget _surgeryAddRemoveButton(bool add, int index){
+                            return InkWell(
+                              onTap: (){
+                                if(add){
+                                  // add new text-fields at the top of all friends textfields
+                                  surgeryList.insert(0, null);
+                                }
+                                else surgeryList.removeAt(index);
+                                setState((){});
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  color: (add) ? Colors.green : Colors.red,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Icon(
+                                  (add) ? Icons.add : Icons.remove, color: Colors.white,
+                                ),
+                              ),
+                            );
+                          }
+
+                          //Test Facility
+                        List<Widget> _getTestFacilities(){
+                          List<Widget> testFacilityTextFieldsList = [];
+                          for(int i=0; i<testFacilityList.length; i++){
+                            testFacilityTextFieldsList.add(
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(child: TestFacilityTextField(i)),
+                                    SizedBox(width: 16,),
+                                    // we need add button at last friends row only
+                                    _testFacilityAddRemoveButton(i == testFacilityList.length-1, i),
+                                  ],
+                                ),
+                              )
+                            );
+                          }
+                          return testFacilityTextFieldsList;
+                        }
+
+                         Widget _testFacilityAddRemoveButton(bool add, int index){
+                            return InkWell(
+                              onTap: (){
+                                if(add){
+                                  // add new text-fields at the top of all friends textfields
+                                  testFacilityList.insert(0, null);
+                                }
+                                else testFacilityList.removeAt(index);
+                                setState((){});
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  color: (add) ? Colors.green : Colors.red,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Icon(
+                                  (add) ? Icons.add : Icons.remove, color: Colors.white,
+                                ),
+                              ),
+                            );
+                          }
 }
 
 // child: Row(

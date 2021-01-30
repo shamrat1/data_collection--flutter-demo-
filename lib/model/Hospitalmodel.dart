@@ -10,28 +10,32 @@ String welcomeToJson(Welcome data) => json.encode(data.toJson());
 
 class Welcome {
     Welcome({
-        this.services,
-        this.surguries,
-        this.testFacilities,
+        this.data,
+    });
+
+    Data data;
+
+    factory Welcome.fromJson(Map<String, dynamic> json) => Welcome(
+        data: Data.fromJson(json["data"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "data": data.toJson(),
+    };
+}
+
+class Data {
+    Data({
         this.divisions,
     });
 
-    List<dynamic> services;
-    List<dynamic> surguries;
-    List<dynamic> testFacilities;
     List<Division> divisions;
 
-    factory Welcome.fromJson(Map<String, dynamic> json) => Welcome(
-        services: List<dynamic>.from(json["services"].map((x) => x)),
-        surguries: List<dynamic>.from(json["surguries"].map((x) => x)),
-        testFacilities: List<dynamic>.from(json["test_facilities"].map((x) => x)),
+    factory Data.fromJson(Map<String, dynamic> json) => Data(
         divisions: List<Division>.from(json["divisions"].map((x) => Division.fromJson(x))),
     );
 
     Map<String, dynamic> toJson() => {
-        "services": List<dynamic>.from(services.map((x) => x)),
-        "surguries": List<dynamic>.from(surguries.map((x) => x)),
-        "test_facilities": List<dynamic>.from(testFacilities.map((x) => x)),
         "divisions": List<dynamic>.from(divisions.map((x) => x.toJson())),
     };
 }
