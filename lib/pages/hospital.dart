@@ -136,6 +136,11 @@ class _HospitalState extends State<Hospital> {
         height: 400,
       );
     }
+    return Image.file(
+        imageFile,
+        width: 400,
+        height: 400,
+      );
   }
 
   @override
