@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:data_collection/helperClass/surgeriesField.dart';
 import 'package:data_collection/helperClass/testFacilityField.dart';
@@ -18,6 +20,17 @@ class Hospital extends StatefulWidget {
 class _HospitalState extends State<Hospital> {
   var locationmsg = " ";
   File imageFile;
+  AutoCompleteTextField searchTextField;
+  GlobalKey<AutoCompleteTextFieldState<Divisions>> key = new GlobalKey();
+  static List<Divisions> divisions = new List<Divisions>();
+  bool loading = true;
+
+  // static List<Division> loadUsers(String jsonString) {
+  //   final parsed = json.decode(jsonString).cast<Map<String, dynamic>>();
+  //   return parsed.map<Division>((json) => Division.fromJson(json)).toList();
+  // }
+
+  static get extractedData => null;
 
   // for map
   Future<Position> _determinePosition() async {
@@ -58,7 +71,7 @@ class _HospitalState extends State<Hospital> {
     });
   }
 
-  //for camera
+  //for camera dialogBox
   Future<void> _showChoiceDialog(BuildContext context) {
     return showDialog(
         context: context,
@@ -88,9 +101,6 @@ class _HospitalState extends State<Hospital> {
         });
   }
 
-  //retrive data
-  List<Division> _divitions;
-
   //service, test_facility, surgery
   final _formKey = GlobalKey<FormState>();
   final _surveyKey = GlobalKey<FormState>();
@@ -102,30 +112,39 @@ class _HospitalState extends State<Hospital> {
 
   @override
   void initState() {
+    
+    //Hservice.HospitalService.getAllData();
     // TODO: implement initState
     super.initState();
     //service, test_facility, surgery
     // _nameController = TextEditingController();
-    Hservice.HospitalService.getAllData().then((divisions) {
-      setState(() {
-        _divitions = divisions;
-      });
-    });
+    // Hservice.HospitalService.getAllData().then((divisions) {
+    //   setState(() {
+    //     //_divitions = divisions;
+    //   });
+    // });
+  }
+
+  Widget row(Divisions division) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          division.name,
+          style: TextStyle(fontSize: 16.0),
+        ),
+        SizedBox(
+          width: 10.0,
+        ),
+      ],
+    );
   }
 
   //autoCompleteTextView test
   var _divisionController = new TextEditingController();
-  var _cityController = new TextEditingController();
-  List division = ["Dhaka", "Chittagong", "Sylhet"];
-  List city = ["Mirpur", "Dhanmondi", "Gulshan"];
+  // var _cityController = new TextEditingController();
 
-  //service, test_facility, surgery
-  // @override
-  // void dispose() {
-  //   _nameController.dispose();
-  //   super.dispose();
-  // }
-
+  // for image
   Widget _decideImageView() {
     if (imageFile == null) {
       return Text("No Image Selected");
@@ -137,10 +156,10 @@ class _HospitalState extends State<Hospital> {
       );
     }
     return Image.file(
-        imageFile,
-        width: 400,
-        height: 400,
-      );
+      imageFile,
+      width: 400,
+      height: 400,
+    );
   }
 
   @override
@@ -165,75 +184,113 @@ class _HospitalState extends State<Hospital> {
               padding: EdgeInsets.all(10.0),
             ),
             Container(
-              child: Column(
-                children: <Widget>[
-                  AutoCompleteTextField(
-                      controller: _divisionController,
-                      clearOnSubmit: false,
-                      style: TextStyle(color: Colors.black, fontSize: 20.0),
-                      itemSubmitted: (item) {
-                        _divisionController.text = item;
-                      },
-                      key: null,
-                      suggestions: division,
-                      decoration: InputDecoration(hintText: 'Division'),
-                      itemBuilder: (context, item) {
-                        return Container(
-                          padding: EdgeInsets.all(2.0),
-                          child: Row(
-                            children: <Widget>[
-                              Text(item),
-                            ],
-                          ),
-                        );
-                      },
-                      itemSorter: (a, b) {
-                        return a.compareTo(b);
-                      },
-                      itemFilter: (item, query) {
-                        return item
-                            .toLowerCase()
-                            .startsWith(query.toLowerCase());
-                      })
-                ],
-              ),
-              padding: EdgeInsets.all(10.0),
-            ),
+                child: Column(
+              // mainAxisAlignment: MainAxisAlignment.start,
+              // children: <Widget>[
+              //   loading
+              //       ? CircularProgressIndicator()
+              //       : searchTextField = AutoCompleteTextField<Divisions>(
+              //           key: key,
+              //           clearOnSubmit: false,
+              //           suggestions: divisions,
+              //           style: TextStyle(color: Colors.black, fontSize: 16.0),
+              //           decoration: InputDecoration(
+              //             contentPadding:
+              //                 EdgeInsets.fromLTRB(10.0, 30.0, 10.0, 20.0),
+              //             hintText: "Search Division",
+              //             hintStyle: TextStyle(color: Colors.black),
+              //           ),
+              //           itemFilter: (item, query) {
+              //             return item.name
+              //                 .toLowerCase()
+              //                 .startsWith(query.toLowerCase());
+              //           },
+              //           itemSorter: (a, b) {
+              //             return a.name.compareTo(b.name);
+              //           },
+              //           itemSubmitted: (item) {
+              //             setState(() {
+              //               searchTextField.textField.controller.text =
+              //                   item.name;
+              //             });
+              //           },
+              //           itemBuilder: (context, item) {
+              //             // ui for the autocompelete row
+              //             return row(item);
+              //           },
+              //         ),
+              // ],
+            )
+
+                // child: Column(
+                //   children: <Widget>[
+                //     AutoCompleteTextField(
+                //         controller: _divisionController,
+                //         clearOnSubmit: false,
+                //         style: TextStyle(color: Colors.black, fontSize: 20.0),
+                //         itemSubmitted: (item) {
+                //           _divisionController.text = item;
+                //         },
+                //         key: null,
+                //         suggestions: users,
+                //         decoration: InputDecoration(hintText: 'Division'),
+                //         itemBuilder: (context, item) {
+                //           return Container(
+                //             padding: EdgeInsets.all(2.0),
+                //             child: Row(
+                //               children: <Widget>[
+                //                 Text(item),
+                //               ],
+                //             ),
+                //           );
+                //         },
+                //         itemSorter: (a, b) {
+                //           return a.compareTo(b);
+                //         },
+                //         itemFilter: (item, query) {
+                //           return item
+                //               .toLowerCase()
+                //               .startsWith(query.toLowerCase());
+                //         })
+                //   ],
+                // ),
+                // padding: EdgeInsets.all(10.0),
+                ),
             Container(
-              child: Column(
-                children: <Widget>[
-                  AutoCompleteTextField(
-                      controller: _cityController,
-                      clearOnSubmit: false,
-                      style: TextStyle(color: Colors.black, fontSize: 20.0),
-                      itemSubmitted: (cityItem) {
-                        _cityController.text = cityItem;
-                      },
-                      key: null,
-                      suggestions: city,
-                      decoration: InputDecoration(hintText: 'City'),
-                      itemBuilder: (context, cityItem) {
-                        return Container(
-                          padding: EdgeInsets.all(2.0),
-                          child: Row(
-                            children: <Widget>[
-                              Text(cityItem),
-                            ],
-                          ),
-                        );
-                      },
-                      itemSorter: (c, d) {
-                        return c.compareTo(d);
-                      },
-                      itemFilter: (cityItem, query) {
-                        return cityItem
-                            .toLowerCase()
-                            .startsWith(query.toLowerCase());
-                      })
-                ],
-              ),
-              padding: EdgeInsets.all(10.0),
-            ),
+                // child: Column(
+                //   children: <Widget>[
+                //     AutoCompleteTextField(
+                //         controller: _cityController,
+                //         clearOnSubmit: false,
+                //         style: TextStyle(color: Colors.black, fontSize: 20.0),
+                //         itemSubmitted: (cityItem) {
+                //           _cityController.text = cityItem;
+                //         },
+                //         key: null,
+                //         suggestions: city,
+                //         decoration: InputDecoration(hintText: 'City'),
+                //         itemBuilder: (context, cityItem) {
+                //           return Container(
+                //             padding: EdgeInsets.all(2.0),
+                //             child: Row(
+                //               children: <Widget>[
+                //                 Text(cityItem),
+                //               ],
+                //             ),
+                //           );
+                //         },
+                //         itemSorter: (c, d) {
+                //           return c.compareTo(d);
+                //         },
+                //         itemFilter: (cityItem, query) {
+                //           return cityItem
+                //               .toLowerCase()
+                //               .startsWith(query.toLowerCase());
+                //         })
+                //   ],
+                // ),
+                // padding: EdgeInsets.all(10.0),
+                ),
             Container(
               child: TextField(
                 decoration: InputDecoration(hintText: 'Address In English'),
@@ -571,26 +628,6 @@ class _HospitalState extends State<Hospital> {
 //             ),
 //           ],
 //         ),
-
-//  new ListView.builder(
-//                 itemCount: 1,
-//                 itemBuilder: (BuildContext context, int index) {
-//                   return new Container(
-//                     child: new Center(
-//                       child: new Column(
-//                         crossAxisAlignment: CrossAxisAlignment.stretch,
-//                         children: <Widget>[
-//                           new Card(
-//                             child: new Container(
-//                               child: new Text("Hello"),
-//                               padding: const EdgeInsets.all(20.0),
-//                             ),
-//                           )
-//                         ],
-//                       ),
-//                     ),
-//                   );
-//                 })
 
 // color: Colors.white,
 //       child: ListView.builder(

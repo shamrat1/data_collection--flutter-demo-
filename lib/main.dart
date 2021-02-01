@@ -75,9 +75,9 @@ class _MyHomePageState extends State<MyHomePage>
       body: TabBarView(
         controller: _controller,
         children: [
-          Doctor(),
+          DoctorData(),
           Hospital(),
-          Clinic(),
+          AutoCompleteDemo(),
         ],
       ),
     );

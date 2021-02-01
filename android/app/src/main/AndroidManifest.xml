@@ -6,6 +6,7 @@
 
 
    <application
+        android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
         android:label="data_collection"
         android:icon="@mipmap/ic_launcher">
@@ -33,6 +34,7 @@
               android:name="io.flutter.embedding.android.SplashScreenDrawable"
               android:resource="@drawable/launch_background"
               />
+              
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
