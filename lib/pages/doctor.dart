@@ -18,22 +18,55 @@ class _DoctorDataState extends State<DoctorData> {
   static List<Divisions> users ;
   GlobalKey<AutoCompleteTextFieldState<Divisions>> key = new GlobalKey();
 
-  Future<String> getData() async {
+  // Future<String> getData() async {
+  //   // This example uses the Google Books API to search for books about http.
+  //   // https://developers.google.com/books/docs/overview
+  //   var url = 'http://139.59.112.145/api/registration/helper/hospital';
+
+  //   // Await the http get response, then decode the json-formatted response.
+  //   var response = await http.get(url);
+  //   if (response.statusCode == 200) {
+  //     jsonResponse = convert.jsonDecode(response.body);
+  //     itemCount = jsonResponse['data'];
+  //     users = itemCount['divisions'];
+  //     print('itemCount: $users.');
+  //   } else {
+  //     print('Request failed with status: ${response.statusCode}.');
+  //   }
+  // }
+ var user;
+  Future getData() async {
     // This example uses the Google Books API to search for books about http.
     // https://developers.google.com/books/docs/overview
     var url = 'http://139.59.112.145/api/registration/helper/hospital';
 
     // Await the http get response, then decode the json-formatted response.
-    var response = await http.get(url);
+    final response = await http.get(url);
     if (response.statusCode == 200) {
-      jsonResponse = convert.jsonDecode(response.body);
-      itemCount = jsonResponse['data'];
-      users = itemCount['divisions'];
+      jsonResponse = jsonDecode(response.body);
+      print(jsonResponse);
+      // itemCount = jsonResponse['data'];
+      user = jsonResponse['data']['divisions'][0]['name'];
+
+      // Helper helper = new Helper.fromJson(jsonResponse);
+
+      // for (var i = 0; i < helper.data.divisions.length; i++) {
+      //   users.add(helper.data.divisions[i]);
+      //   print(helper.data.divisions[i].name);
+      // }
+
+      print(user);
       print('itemCount: $users.');
     } else {
       print('Request failed with status: ${response.statusCode}.');
     }
   }
+
+
+
+
+
+
 
   @override
   void initState() {
