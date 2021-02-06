@@ -32,7 +32,7 @@ class AutoCompleteDemo extends StatefulWidget {
 class _AutoCompleteDemoState extends State<AutoCompleteDemo> {
   AutoCompleteTextField searchTextField;
   TextEditingController controller = new TextEditingController();
-  GlobalKey<AutoCompleteTextFieldState<Divisions>> key = new GlobalKey();
+  GlobalKey<AutoCompleteTextFieldState<Division>> key = new GlobalKey();
   //static List<Divisions> users = new List<Divisions>();
   bool loading = true;
 
@@ -57,7 +57,7 @@ class _AutoCompleteDemoState extends State<AutoCompleteDemo> {
       body: new Center(
           child: new Column(children: <Widget>[
         new Column(children: <Widget>[
-          searchTextField = AutoCompleteTextField<Divisions>(
+          searchTextField = AutoCompleteTextField<Division>(
               style: new TextStyle(color: Colors.black, fontSize: 16.0),
               decoration: new InputDecoration(
                   suffixIcon: Container(

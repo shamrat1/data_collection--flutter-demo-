@@ -21,8 +21,8 @@ class _HospitalState extends State<Hospital> {
   var locationmsg = " ";
   File imageFile;
   AutoCompleteTextField searchTextField;
-  GlobalKey<AutoCompleteTextFieldState<Divisions>> key = new GlobalKey();
-  static List<Divisions> divisions = new List<Divisions>();
+  GlobalKey<AutoCompleteTextFieldState<Division>> key = new GlobalKey();
+  static List<Division> divisions = new List<Division>();
   bool loading = true;
 
   // static List<Division> loadUsers(String jsonString) {
@@ -125,7 +125,7 @@ class _HospitalState extends State<Hospital> {
     // });
   }
 
-  Widget row(Divisions division) {
+  Widget row(Division division) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[

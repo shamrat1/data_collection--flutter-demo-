@@ -15,8 +15,8 @@ class _DoctorDataState extends State<DoctorData> {
   var _divisionController = new TextEditingController();
   AutoCompleteTextField searchTextField;
   var jsonResponse, itemCount, dname;
-  static List<Divisions> users ;
-  GlobalKey<AutoCompleteTextFieldState<Divisions>> key = new GlobalKey();
+  static List<Division> users ;
+  GlobalKey<AutoCompleteTextFieldState<Division>> key = new GlobalKey();
 
   // Future<String> getData() async {
   //   // This example uses the Google Books API to search for books about http.
@@ -80,7 +80,7 @@ class _DoctorDataState extends State<DoctorData> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          AutoCompleteTextField<Divisions>(
+          AutoCompleteTextField<Division>(
               controller: _divisionController,
               clearOnSubmit: false,
               style: TextStyle(color: Colors.black, fontSize: 20.0),
