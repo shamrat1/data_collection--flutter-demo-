@@ -1,23 +1,8 @@
-// import 'package:flutter/material.dart';
-
-// class Clinic extends StatefulWidget {
-//   @override
-//   _ClinicState createState() => _ClinicState();
-// }
-
-// class _ClinicState extends State<Clinic> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold();
-//   }
-// }
-import 'dart:convert';
-
-import 'package:data_collection/getdata/HospitalService.dart';
-import 'package:data_collection/model/Hospitalmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
+import 'user.dart';
+import 'dart:convert';
+import 'package:data_collection/model/User.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
 class AutoCompleteDemo extends StatefulWidget {
@@ -30,23 +15,37 @@ class AutoCompleteDemo extends StatefulWidget {
 }
 
 class _AutoCompleteDemoState extends State<AutoCompleteDemo> {
-  AutoCompleteTextField searchTextField;
-  TextEditingController controller = new TextEditingController();
-  GlobalKey<AutoCompleteTextFieldState<Division>> key = new GlobalKey();
-  //static List<Divisions> users = new List<Divisions>();
-  bool loading = true;
+  String _mySelection;
 
-  void _loadData() async {
-    await PlayersViewModel.loadPlayers();
+  final String url = "http://139.59.112.145/api/registration/helper/hospital";
+
+  List data = List(); //edited line
+  var user;
+
+  Future<String> getSWData() async {
+    var res = await http
+        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    var resBody = json.decode(res.body);
+    
+    for (int i = 0; i < resBody.toString().length; i++) {
+      user = resBody['data']['divisions'][i]['cities']['name'];
+     // print('Sample: $user.');
+     setState(() {
+      data = user;
+    });
+    }
+    
+
+    //print(resBody);
+
+    return "Sucess";
   }
 
   @override
   void initState() {
-    //getUsers();
-    _loadData();
     super.initState();
+    this.getSWData();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -54,49 +53,24 @@ class _AutoCompleteDemoState extends State<AutoCompleteDemo> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: new Center(
-          child: new Column(children: <Widget>[
-        new Column(children: <Widget>[
-          searchTextField = AutoCompleteTextField<Division>(
-              style: new TextStyle(color: Colors.black, fontSize: 16.0),
-              decoration: new InputDecoration(
-                  suffixIcon: Container(
-                    width: 85.0,
-                    height: 60.0,
-                  ),
-                  contentPadding: EdgeInsets.fromLTRB(10.0, 30.0, 10.0, 20.0),
-                  filled: true,
-                  hintText: 'Search Player Name',
-                  hintStyle: TextStyle(color: Colors.black)),
-              itemSubmitted: (item) {
-                setState(() =>
-                    searchTextField.textField.controller.text = item.name);
-              },
-              clearOnSubmit: false,
-              key: key,
-              suggestions: PlayersViewModel.players,
-              itemBuilder: (context, item) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      item.name,
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(15.0),
-                    ),
-                  ],
-                );
-              },
-              itemSorter: (a, b) {
-                return a.name.compareTo(b.name);
-              },
-              itemFilter: (item, query) {
-                return item.name.toLowerCase().startsWith(query.toLowerCase());
-              }),
-        ]),
-      ])),
+      body: Column(
+        children: [
+          new DropdownButton(
+            items: data.map((item) {
+              return new DropdownMenuItem(
+                child: new Text(item['name']),
+                value: item['id'].toString(),
+              );
+            }).toList(),
+            onChanged: (newVal) {
+              setState(() {
+                _mySelection = newVal;
+              });
+            },
+            value: _mySelection,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:data_collection/helperClass/testForAddButton.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:data_collection/model/Hospitalmodel.dart';
+import 'package:data_collection/pages/doctor.dart';
 import 'package:data_collection/getdata/HospitalService.dart' as Hservice;
 import 'package:image_picker/image_picker.dart';
 
@@ -24,11 +25,6 @@ class _HospitalState extends State<Hospital> {
   GlobalKey<AutoCompleteTextFieldState<Division>> key = new GlobalKey();
   static List<Division> divisions = new List<Division>();
   bool loading = true;
-
-  // static List<Division> loadUsers(String jsonString) {
-  //   final parsed = json.decode(jsonString).cast<Map<String, dynamic>>();
-  //   return parsed.map<Division>((json) => Division.fromJson(json)).toList();
-  // }
 
   static get extractedData => null;
 
@@ -110,34 +106,226 @@ class _HospitalState extends State<Hospital> {
   static List<String> surgeryList = [null];
   static List<String> testFacilityList = [null];
 
-  @override
-  void initState() {
-    
-    //Hservice.HospitalService.getAllData();
-    // TODO: implement initState
-    super.initState();
-    //service, test_facility, surgery
-    // _nameController = TextEditingController();
-    // Hservice.HospitalService.getAllData().then((divisions) {
-    //   setState(() {
-    //     //_divitions = divisions;
-    //   });
-    // });
+  //dropdown
+  String _mySelection;
+  String _citySelection;
+
+  final String url = "http://139.59.112.145/api/registration/helper/hospital";
+
+  List data = List(); //edited line
+  List city_data = List();
+  var city;
+
+  Future<String> getSWData() async {
+    var res = await http
+        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    var resBody = json.decode(res.body);
+
+    var user = resBody['data']['divisions'];
+    setState(() {
+      data = user;
+    });
+    return "Sucess";
   }
 
-  Widget row(Division division) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Text(
-          division.name,
-          style: TextStyle(fontSize: 16.0),
-        ),
-        SizedBox(
-          width: 10.0,
-        ),
-      ],
+  Future<String> getCity() async {
+    var res = await http
+        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    var resBody = json.decode(res.body);
+
+    //var user = resBody['data']['divisions'];
+    // setState(() {
+    //   data = user;
+    // });
+    // for (int i = 0; i < resBody.toString().length; i++) {
+    city = resBody['data']['divisions']['cities'];
+    print('city: $city.');
+    setState(() {
+      city_data = city;
+    });
+
+    return "Sucess";
+  }
+
+      ////////////////////////
+      ///TEST Dropdown/////////////
+      /////////////////////
+      int surveyquestionnum = 1;
+  int surveyquestiontotal = 1;
+  ///service
+  List<Item> selectedService = [null];
+  List<Item> survices;
+  int linkservicedevices = 1;
+  ///surgery
+  List<Item> selectedSurgery = [null];
+  List<Item> surgeries;
+  int linksurgerydevices = 1;
+  ////test facility
+  List<Item> selectedtest = [null];
+  List<Item> tests;
+  int linktestdevices = 1;
+  String dropdownvalue = "SELECT FROM DROPDOWN";
+ 
+  @override
+  Widget _servicedropdownbutton(List<Item> servicelist, int index) {
+    return Container(
+      padding: EdgeInsets.all(1),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: BorderRadius.all(Radius.circular(15.0) //
+            ),
+      ),
+      child: DropdownButton<Item>(
+        underline: SizedBox(),
+        isExpanded: true,
+        icon: Icon(Icons.arrow_drop_down),
+        hint: Text("  $dropdownvalue"),
+        value: selectedService[index],
+        onChanged: (Item Value) {
+          print(Value.toString());
+          print(index);
+          setState(() {
+            selectedService[index] = Value;
+          });
+        },
+        items: servicelist.map((Item service) {
+          return DropdownMenuItem<Item>(
+            value: service,
+            child: Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  service.name,
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
     );
+  }
+
+   @override
+  Widget _surgerydropdownbutton(List<Item> surgerylist, int index) {
+    return Container(
+      padding: EdgeInsets.all(1),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: BorderRadius.all(Radius.circular(15.0) //
+            ),
+      ),
+      child: DropdownButton<Item>(
+        underline: SizedBox(),
+        isExpanded: true,
+        icon: Icon(Icons.arrow_drop_down),
+        hint: Text("  $dropdownvalue"),
+        value: selectedSurgery[index],
+        onChanged: (Item Value) {
+          print(Value.toString());
+          print(index);
+          setState(() {
+            selectedSurgery[index] = Value;
+          });
+        },
+        items: surgerylist.map((Item surgery) {
+          return DropdownMenuItem<Item>(
+            value: surgery,
+            child: Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  surgery.name,
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+   @override
+  Widget _testdropdownbutton(List<Item> testlist, int index) {
+    return Container(
+      padding: EdgeInsets.all(1),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: BorderRadius.all(Radius.circular(15.0) //
+            ),
+      ),
+      child: DropdownButton<Item>(
+        underline: SizedBox(),
+        isExpanded: true,
+        icon: Icon(Icons.arrow_drop_down),
+        hint: Text("  $dropdownvalue"),
+        value: selectedtest[index],
+        onChanged: (Item Value) {
+          print(Value.toString());
+          print(index);
+          setState(() {
+            selectedtest[index] = Value;
+          });
+        },
+        items: testlist.map((Item test) {
+          return DropdownMenuItem<Item>(
+            value: test,
+            child: Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  test.name,
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _text(texthere, bold, size, color) {
+    return Text(texthere,
+        style: TextStyle(fontWeight: bold, fontSize: size, color: color),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1);
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    this.getSWData();
+    this.getCity();
+    survices = <Item>[
+      Item('Sample device 1'),
+      Item('Sample device 2'),
+      Item('Sample device 3'),
+      Item('Sample device 4'),
+    ];
+     surgeries = <Item>[
+      Item('surgeries device 1'),
+      Item('surgeries device 2'),
+      Item('surgeries device 3'),
+      Item('surgeries device 4'),
+    ];
+    tests = <Item>[
+      Item('tests device 1'),
+      Item('tests device 2'),
+      Item('tests device 3'),
+      Item('tests device 4'),
+    ];
   }
 
   //autoCompleteTextView test
@@ -184,113 +372,47 @@ class _HospitalState extends State<Hospital> {
               padding: EdgeInsets.all(10.0),
             ),
             Container(
+                width: 300.0,
+                margin: const EdgeInsets.all(30.0),
                 child: Column(
-              // mainAxisAlignment: MainAxisAlignment.start,
-              // children: <Widget>[
-              //   loading
-              //       ? CircularProgressIndicator()
-              //       : searchTextField = AutoCompleteTextField<Divisions>(
-              //           key: key,
-              //           clearOnSubmit: false,
-              //           suggestions: divisions,
-              //           style: TextStyle(color: Colors.black, fontSize: 16.0),
-              //           decoration: InputDecoration(
-              //             contentPadding:
-              //                 EdgeInsets.fromLTRB(10.0, 30.0, 10.0, 20.0),
-              //             hintText: "Search Division",
-              //             hintStyle: TextStyle(color: Colors.black),
-              //           ),
-              //           itemFilter: (item, query) {
-              //             return item.name
-              //                 .toLowerCase()
-              //                 .startsWith(query.toLowerCase());
-              //           },
-              //           itemSorter: (a, b) {
-              //             return a.name.compareTo(b.name);
-              //           },
-              //           itemSubmitted: (item) {
-              //             setState(() {
-              //               searchTextField.textField.controller.text =
-              //                   item.name;
-              //             });
-              //           },
-              //           itemBuilder: (context, item) {
-              //             // ui for the autocompelete row
-              //             return row(item);
-              //           },
-              //         ),
-              // ],
-            )
-
-                // child: Column(
-                //   children: <Widget>[
-                //     AutoCompleteTextField(
-                //         controller: _divisionController,
-                //         clearOnSubmit: false,
-                //         style: TextStyle(color: Colors.black, fontSize: 20.0),
-                //         itemSubmitted: (item) {
-                //           _divisionController.text = item;
-                //         },
-                //         key: null,
-                //         suggestions: users,
-                //         decoration: InputDecoration(hintText: 'Division'),
-                //         itemBuilder: (context, item) {
-                //           return Container(
-                //             padding: EdgeInsets.all(2.0),
-                //             child: Row(
-                //               children: <Widget>[
-                //                 Text(item),
-                //               ],
-                //             ),
-                //           );
-                //         },
-                //         itemSorter: (a, b) {
-                //           return a.compareTo(b);
-                //         },
-                //         itemFilter: (item, query) {
-                //           return item
-                //               .toLowerCase()
-                //               .startsWith(query.toLowerCase());
-                //         })
-                //   ],
-                // ),
-                // padding: EdgeInsets.all(10.0),
-                ),
+                  children: [
+                    new DropdownButton(
+                      items: data.map((item) {
+                        return new DropdownMenuItem(
+                          child: new Text(item['name']),
+                          value: item['id'].toString(),
+                        );
+                      }).toList(),
+                      onChanged: (newVal) {
+                        setState(() {
+                          _mySelection = newVal;
+                        });
+                      },
+                      value: _mySelection,
+                    ),
+                  ],
+                )),
             Container(
-                // child: Column(
-                //   children: <Widget>[
-                //     AutoCompleteTextField(
-                //         controller: _cityController,
-                //         clearOnSubmit: false,
-                //         style: TextStyle(color: Colors.black, fontSize: 20.0),
-                //         itemSubmitted: (cityItem) {
-                //           _cityController.text = cityItem;
-                //         },
-                //         key: null,
-                //         suggestions: city,
-                //         decoration: InputDecoration(hintText: 'City'),
-                //         itemBuilder: (context, cityItem) {
-                //           return Container(
-                //             padding: EdgeInsets.all(2.0),
-                //             child: Row(
-                //               children: <Widget>[
-                //                 Text(cityItem),
-                //               ],
-                //             ),
-                //           );
-                //         },
-                //         itemSorter: (c, d) {
-                //           return c.compareTo(d);
-                //         },
-                //         itemFilter: (cityItem, query) {
-                //           return cityItem
-                //               .toLowerCase()
-                //               .startsWith(query.toLowerCase());
-                //         })
-                //   ],
-                // ),
-                // padding: EdgeInsets.all(10.0),
-                ),
+                width: 300.0,
+                margin: const EdgeInsets.all(30.0),
+                child: Column(
+                  children: [
+                    new DropdownButton(
+                      items: city_data.map((item) {
+                        return new DropdownMenuItem(
+                          child: new Text(item['name']),
+                          value: item['id'].toString(),
+                        );
+                      }).toList(),
+                      onChanged: (cityVal) {
+                        setState(() {
+                          _citySelection = cityVal;
+                        });
+                      },
+                      value: _citySelection,
+                    ),
+                  ],
+                )),
             Container(
               child: TextField(
                 decoration: InputDecoration(hintText: 'Address In English'),
@@ -327,98 +449,194 @@ class _HospitalState extends State<Hospital> {
               ),
             ),
             Container(
-              child: Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Services',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16),
+              child: Column(
+                children: <Widget>[
+                  _text("Services", FontWeight.bold, 20.0, Colors.blue),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: linkservicedevices,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _servicedropdownbutton(survices, index),
+                      );
+                    },
+                    separatorBuilder: (context, index) => Container(height: 10),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      InkWell(
+                        child: Text("ADD DEVICE"),
+                        onTap: () {
+                          selectedService.add(null);
+                          linkservicedevices++;
+                          setState(() {});
+                        },
                       ),
-                      ..._getFriends(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      //  FlatButton(
-                      //    onPressed: (){
-                      //      if(_formKey.currentState.validate()){
-                      //         _formKey.currentState.save();
-                      //         }
-                      //         },
-                      //         child: Text('Submit'),
-                      //         color: Colors.green,
+                      // InkWell(
+                      //   child: Text("CLEAR ALL DEVICE"),
+                      //   onTap: () {},
                       // ),
                     ],
                   ),
-                ),
+                ],
               ),
             ),
             Container(
-              child: Form(
-                key: _surveyKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Surgey',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16),
+              child: Column(
+                children: <Widget>[
+                  _text("Surgery", FontWeight.bold, 20.0, Colors.blue),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: linksurgerydevices,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _surgerydropdownbutton(surgeries, index),
+                      );
+                    },
+                    separatorBuilder: (context, index) => Container(height: 10),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      InkWell(
+                        child: Text("ADD DEVICE"),
+                        onTap: () {
+                          selectedSurgery.add(null);
+                          linksurgerydevices++;
+                          setState(() {});
+                        },
                       ),
-                      ..._getSurgeries(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      //  FlatButton(
-                      //    onPressed: (){
-                      //      if(_surveyKey.currentState.validate()){
-                      //         _surveyKey.currentState.save();
-                      //         }
-                      //         },
-                      //         child: Text('Submit'),
-                      //         color: Colors.green,
+                      // InkWell(
+                      //   child: Text("CLEAR ALL DEVICE"),
+                      //   onTap: () {},
                       // ),
                     ],
                   ),
-                ),
+                ],
               ),
             ),
             Container(
-              child: Form(
-                key: _testFacilityKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Test Facility',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16),
+              child: Column(
+                children: <Widget>[
+                  _text("Test Facility", FontWeight.bold, 20.0, Colors.blue),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: linktestdevices,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _testdropdownbutton(tests, index),
+                      );
+                    },
+                    separatorBuilder: (context, index) => Container(height: 10),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      InkWell(
+                        child: Text("ADD DEVICE"),
+                        onTap: () {
+                          selectedtest.add(null);
+                          linktestdevices++;
+                          setState(() {});
+                        },
                       ),
-                      ..._getTestFacilities(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      //  FlatButton(
-                      //    onPressed: (){
-                      //      if(_surveyKey.currentState.validate()){
-                      //         _surveyKey.currentState.save();
-                      //         }
-                      //         },
-                      //         child: Text('Submit'),
-                      //         color: Colors.green,
+                      // InkWell(
+                      //   child: Text("CLEAR ALL DEVICE"),
+                      //   onTap: () {},
                       // ),
                     ],
                   ),
-                ),
+                ],
               ),
             ),
+            // Container(
+            //   child: Form(
+            //     key: _formKey,
+            //     child: Padding(
+            //       padding: const EdgeInsets.all(5.0),
+            //       child: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           Text(
+            //             'Services',
+            //             style: TextStyle(
+            //                 fontWeight: FontWeight.w700, fontSize: 16),
+            //           ),
+            //           ..._getFriends(),
+            //           SizedBox(
+            //             height: 20,
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   child: Form(
+            //     key: _surveyKey,
+            //     child: Padding(
+            //       padding: const EdgeInsets.all(5.0),
+            //       child: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           Text(
+            //             'Surgey',
+            //             style: TextStyle(
+            //                 fontWeight: FontWeight.w700, fontSize: 16),
+            //           ),
+            //           ..._getSurgeries(),
+            //           SizedBox(
+            //             height: 20,
+            //           ),
+            //           //  FlatButton(
+            //           //    onPressed: (){
+            //           //      if(_surveyKey.currentState.validate()){
+            //           //         _surveyKey.currentState.save();
+            //           //         }
+            //           //         },
+            //           //         child: Text('Submit'),
+            //           //         color: Colors.green,
+            //           // ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   child: Form(
+            //     key: _testFacilityKey,
+            //     child: Padding(
+            //       padding: const EdgeInsets.all(5.0),
+            //       child: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           Text(
+            //             'Test Facility',
+            //             style: TextStyle(
+            //                 fontWeight: FontWeight.w700, fontSize: 16),
+            //           ),
+            //           ..._getTestFacilities(),
+            //           SizedBox(
+            //             height: 20,
+            //           ),
+            //           //  FlatButton(
+            //           //    onPressed: (){
+            //           //      if(_surveyKey.currentState.validate()){
+            //           //         _surveyKey.currentState.save();
+            //           //         }
+            //           //         },
+            //           //         child: Text('Submit'),
+            //           //         color: Colors.green,
+            //           // ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
             Container(
               child: TextField(
                 decoration: InputDecoration(hintText: 'Branch Name'),
@@ -589,6 +807,7 @@ class _HospitalState extends State<Hospital> {
     );
   }
 
+  //gallery
   _openGallery(BuildContext context) async {
     var picture = await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
@@ -597,6 +816,7 @@ class _HospitalState extends State<Hospital> {
     Navigator.of(context).pop();
   }
 
+  //Camera
   _openCamera(BuildContext context) async {
     var picture = await ImagePicker.pickImage(source: ImageSource.camera);
     setState(() {
@@ -605,57 +825,3 @@ class _HospitalState extends State<Hospital> {
     Navigator.of(context).pop();
   }
 }
-
-// child: Row(
-//           mainAxisAlignment: MainAxisAlignment.start,
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children:<Widget>[
-//             FlatButton(
-//               onPressed: () {
-//                 getCurrentLocation();
-//               },
-//               color: Colors.blue[800],
-//               child: Icon(
-//                 Icons.location_on,
-//                 size: 20.0,
-//                 color: Colors.blue,
-//               ),
-//             ),
-//             SizedBox(
-//               height: 10.0,
-//             ),
-//             Text(locationmsg
-//             ),
-//           ],
-//         ),
-
-// color: Colors.white,
-//       child: ListView.builder(
-//           itemCount: null == _divitions ? 0 : _divitions.length,
-//           itemBuilder: (BuildContext context, int index) {
-//             Division division = _divitions[index];
-//              return ListTile(
-//               title: Text(division.name),
-//             );
-//           }),
-
-// new ListView.builder(
-//       itemCount: null == _divitions ? 0 : _divitions.length,
-//       itemBuilder: (BuildContext context, int index) {
-//         Division division = _divitions[index];
-//         return new Container(
-//           child: new Center(
-//             child: new Column(
-//               crossAxisAlignment: CrossAxisAlignment.stretch,
-//               children: <Widget>[
-//                 new Card(
-//                   child: new Container(
-//                     child: new Text(division.name),
-//                     padding: const EdgeInsets.all(20.0),
-//                   ),
-//                 )
-//               ],
-//             ),
-//           ),
-//         );
-//       })

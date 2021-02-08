@@ -1,113 +1,168 @@
-import 'dart:convert';
-
-import 'package:data_collection/model/Hospitalmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
-class DoctorData extends StatefulWidget {
-  @override
-  _DoctorDataState createState() => _DoctorDataState();
+class Item {
+  Item(this.name);
+  String name;
 }
 
-class _DoctorDataState extends State<DoctorData> {
-  var _divisionController = new TextEditingController();
-  AutoCompleteTextField searchTextField;
-  var jsonResponse, itemCount, dname;
-  static List<Division> users ;
-  GlobalKey<AutoCompleteTextFieldState<Division>> key = new GlobalKey();
+class editsurvey extends StatefulWidget {
+  @override
+  _editsurveyState createState() => _editsurveyState();
+}
 
-  // Future<String> getData() async {
-  //   // This example uses the Google Books API to search for books about http.
-  //   // https://developers.google.com/books/docs/overview
-  //   var url = 'http://139.59.112.145/api/registration/helper/hospital';
+class _editsurveyState extends State<editsurvey> {
+  int surveyquestionnum = 1;
+  int surveyquestiontotal = 1;
 
-  //   // Await the http get response, then decode the json-formatted response.
-  //   var response = await http.get(url);
-  //   if (response.statusCode == 200) {
-  //     jsonResponse = convert.jsonDecode(response.body);
-  //     itemCount = jsonResponse['data'];
-  //     users = itemCount['divisions'];
-  //     print('itemCount: $users.');
-  //   } else {
-  //     print('Request failed with status: ${response.statusCode}.');
-  //   }
-  // }
- var user;
-  Future getData() async {
-    // This example uses the Google Books API to search for books about http.
-    // https://developers.google.com/books/docs/overview
-    var url = 'http://139.59.112.145/api/registration/helper/hospital';
+  List<Item> selectedUser = [null];
+  List<Item> selecteddata = [null, null];
+  List<Item> tusers;
 
-    // Await the http get response, then decode the json-formatted response.
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      jsonResponse = jsonDecode(response.body);
-      print(jsonResponse);
-      // itemCount = jsonResponse['data'];
-      user = jsonResponse['data']['divisions'][0]['name'];
-
-      // Helper helper = new Helper.fromJson(jsonResponse);
-
-      // for (var i = 0; i < helper.data.divisions.length; i++) {
-      //   users.add(helper.data.divisions[i]);
-      //   print(helper.data.divisions[i].name);
-      // }
-
-      print(user);
-      print('itemCount: $users.');
-    } else {
-      print('Request failed with status: ${response.statusCode}.');
-    }
-  }
-
-
-
-
-
-
+  int linkdevices = 1;
+  String dropdownvalue = "SELECT FROM DROPDOWN";
+ 
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    this.getData();
+    tusers = <Item>[
+      Item('Sample device 1'),
+      Item('Sample device 2'),
+      Item('Sample device 3'),
+      Item('Sample device 4'),
+    ];
+
   }
 
   @override
+  Widget _dropdownbutton(List<Item> userlist, int index) {
+    return Container(
+      padding: EdgeInsets.all(1),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: BorderRadius.all(Radius.circular(15.0) //
+            ),
+      ),
+      child: DropdownButton<Item>(
+        underline: SizedBox(),
+        isExpanded: true,
+        icon: Icon(Icons.arrow_drop_down),
+        hint: Text("  $dropdownvalue"),
+        value: selectedUser[index],
+        onChanged: (Item Value) {
+          print(Value.toString());
+          print(index);
+          setState(() {
+            selectedUser[index] = Value;
+          });
+        },
+        items: userlist.map((Item user) {
+          return DropdownMenuItem<Item>(
+            value: user,
+            child: Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  user.name,
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _text(texthere, bold, size, color) {
+    return Text(texthere,
+        style: TextStyle(fontWeight: bold, fontSize: size, color: color),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1);
+  }
+
+
+
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: <Widget>[
-          AutoCompleteTextField<Division>(
-              controller: _divisionController,
-              clearOnSubmit: false,
-              style: TextStyle(color: Colors.black, fontSize: 20.0),
-              itemSubmitted: (item) {
-                _divisionController.text = item.name;
-              },
-              key: key,
-              suggestions: users,
-              decoration: InputDecoration(hintText: 'Division'),
-              itemBuilder: (context, item) {
-                return Container(
-                  padding: EdgeInsets.all(2.0),
-                  child: Row(
-                    children: <Widget>[
-                      Text(item.name),
-                    ],
-                  ),
-                );
-              },
-              itemSorter: (a, b) {
-                return a.name.compareTo(b.name);
-              },
-              itemFilter: (item, query) {
-                return item.name.toLowerCase().startsWith(query.toLowerCase());
-              })
-        ],
+      appBar: AppBar(
+        title: Padding(
+            padding: EdgeInsets.only(left: 30),
+           
+            ),
       ),
+      body: Padding(
+        padding: const EdgeInsets.all(1.0),
+        child: 
+                  Container(
+                    
+                    child: Column(
+                      children: <Widget>[
+                        _text("DEVICES PINNED", FontWeight.bold, 20.0,
+                            Colors.blue),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: linkdevices,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: _dropdownbutton(tusers, index),
+                            );
+                          },
+                          separatorBuilder: (context, index) => Container(height: 10),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            InkWell(
+                              child: Text("ADD DEVICE"),
+                              onTap: () {
+                                selectedUser.add(null);
+                                linkdevices ++;
+                                setState(() {
+
+                                });
+                              },
+                            ),
+                            InkWell(
+                              child: Text("CLEAR ALL DEVICE"),
+                              onTap: () {},
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+               
+            
+          
+        
+      ),
+    );
+  }
+}
+
+class admincontent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: editsurvey(),
     );
   }
 }
