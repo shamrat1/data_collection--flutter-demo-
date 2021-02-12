@@ -109,6 +109,7 @@ class _HospitalState extends State<Hospital> {
   //dropdown
   String _mySelection;
   String _citySelection;
+  String _testgorirSring;
 
   final String url = "http://139.59.112.145/api/registration/helper/hospital";
 
@@ -137,196 +138,41 @@ class _HospitalState extends State<Hospital> {
     // setState(() {
     //   data = user;
     // });
-    // for (int i = 0; i < resBody.toString().length; i++) {
-    city = resBody['data']['divisions']['cities'];
-    print('city: $city.');
-    setState(() {
-      city_data = city;
-    });
+    for (int i = 0; i < resBody.toString().length; i++) {
+      //  city = resBody['data']['divisions']['cities'];
+      //print('city: $city.');
+      setState(() {
+        city_data = city;
+      });
+    }
 
     return "Sucess";
   }
 
-      ////////////////////////
-      ///TEST Dropdown/////////////
-      /////////////////////
-      int surveyquestionnum = 1;
+  ////////////////////////
+  ///TEST Dropdown/////////////
+  /////////////////////
+  int surveyquestionnum = 1;
   int surveyquestiontotal = 1;
-  ///service
-  List<Item> selectedService = [null];
-  List<Item> survices;
-  int linkservicedevices = 1;
-  ///surgery
-  List<Item> selectedSurgery = [null];
-  List<Item> surgeries;
-  int linksurgerydevices = 1;
-  ////test facility
-  List<Item> selectedtest = [null];
-  List<Item> tests;
+
   int linktestdevices = 1;
   String dropdownvalue = "SELECT FROM DROPDOWN";
+  String divisiondropdown = "Select Division";
+  String citydropdown = "Select Area";
+  String testgorir = "Select testgorir";
+  List serviceList = List();
+
  
-  @override
-  Widget _servicedropdownbutton(List<Item> servicelist, int index) {
-    return Container(
-      padding: EdgeInsets.all(1),
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        border: Border.all(),
-        borderRadius: BorderRadius.all(Radius.circular(15.0) //
-            ),
-      ),
-      child: DropdownButton<Item>(
-        underline: SizedBox(),
-        isExpanded: true,
-        icon: Icon(Icons.arrow_drop_down),
-        hint: Text("  $dropdownvalue"),
-        value: selectedService[index],
-        onChanged: (Item Value) {
-          print(Value.toString());
-          print(index);
-          setState(() {
-            selectedService[index] = Value;
-          });
-        },
-        items: servicelist.map((Item service) {
-          return DropdownMenuItem<Item>(
-            value: service,
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  service.name,
-                  style: TextStyle(color: Colors.black),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-   @override
-  Widget _surgerydropdownbutton(List<Item> surgerylist, int index) {
-    return Container(
-      padding: EdgeInsets.all(1),
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        border: Border.all(),
-        borderRadius: BorderRadius.all(Radius.circular(15.0) //
-            ),
-      ),
-      child: DropdownButton<Item>(
-        underline: SizedBox(),
-        isExpanded: true,
-        icon: Icon(Icons.arrow_drop_down),
-        hint: Text("  $dropdownvalue"),
-        value: selectedSurgery[index],
-        onChanged: (Item Value) {
-          print(Value.toString());
-          print(index);
-          setState(() {
-            selectedSurgery[index] = Value;
-          });
-        },
-        items: surgerylist.map((Item surgery) {
-          return DropdownMenuItem<Item>(
-            value: surgery,
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  surgery.name,
-                  style: TextStyle(color: Colors.black),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-   @override
-  Widget _testdropdownbutton(List<Item> testlist, int index) {
-    return Container(
-      padding: EdgeInsets.all(1),
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        border: Border.all(),
-        borderRadius: BorderRadius.all(Radius.circular(15.0) //
-            ),
-      ),
-      child: DropdownButton<Item>(
-        underline: SizedBox(),
-        isExpanded: true,
-        icon: Icon(Icons.arrow_drop_down),
-        hint: Text("  $dropdownvalue"),
-        value: selectedtest[index],
-        onChanged: (Item Value) {
-          print(Value.toString());
-          print(index);
-          setState(() {
-            selectedtest[index] = Value;
-          });
-        },
-        items: testlist.map((Item test) {
-          return DropdownMenuItem<Item>(
-            value: test,
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  test.name,
-                  style: TextStyle(color: Colors.black),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _text(texthere, bold, size, color) {
-    return Text(texthere,
-        style: TextStyle(fontWeight: bold, fontSize: size, color: color),
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1);
-  }
-
 
   @override
   void initState() {
     super.initState();
     this.getSWData();
     this.getCity();
-    survices = <Item>[
-      Item('Sample device 1'),
-      Item('Sample device 2'),
-      Item('Sample device 3'),
-      Item('Sample device 4'),
-    ];
-     surgeries = <Item>[
-      Item('surgeries device 1'),
-      Item('surgeries device 2'),
-      Item('surgeries device 3'),
-      Item('surgeries device 4'),
-    ];
-    tests = <Item>[
-      Item('tests device 1'),
-      Item('tests device 2'),
-      Item('tests device 3'),
-      Item('tests device 4'),
-    ];
+    
   }
+
+ 
 
   //autoCompleteTextView test
   var _divisionController = new TextEditingController();
@@ -356,6 +202,7 @@ class _HospitalState extends State<Hospital> {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
+            //Name
             Container(
               //margin: const EdgeInsets.only(bottom:5.0),
               child: TextField(
@@ -364,6 +211,7 @@ class _HospitalState extends State<Hospital> {
               ),
               padding: EdgeInsets.all(10.0),
             ),
+            //Name
             Container(
               child: TextField(
                 decoration:
@@ -371,12 +219,17 @@ class _HospitalState extends State<Hospital> {
               ),
               padding: EdgeInsets.all(10.0),
             ),
+           //division
             Container(
                 width: 300.0,
                 margin: const EdgeInsets.all(30.0),
                 child: Column(
                   children: [
                     new DropdownButton(
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      icon: Icon(Icons.arrow_drop_down),
+                      hint: Text("  $divisiondropdown"),
                       items: data.map((item) {
                         return new DropdownMenuItem(
                           child: new Text(item['name']),
@@ -392,12 +245,17 @@ class _HospitalState extends State<Hospital> {
                     ),
                   ],
                 )),
+            //city
             Container(
                 width: 300.0,
                 margin: const EdgeInsets.all(30.0),
                 child: Column(
                   children: [
                     new DropdownButton(
+                      underline: SizedBox(),
+                      isExpanded: true,
+                      icon: Icon(Icons.arrow_drop_down),
+                      hint: Text("  $citydropdown"),
                       items: city_data.map((item) {
                         return new DropdownMenuItem(
                           child: new Text(item['name']),
@@ -413,18 +271,21 @@ class _HospitalState extends State<Hospital> {
                     ),
                   ],
                 )),
+            //address
             Container(
               child: TextField(
                 decoration: InputDecoration(hintText: 'Address In English'),
               ),
               padding: EdgeInsets.all(10.0),
             ),
+             //address
             Container(
               child: TextField(
                 decoration: InputDecoration(hintText: 'Address In Bangla'),
               ),
               padding: EdgeInsets.all(10.0),
             ),
+            //Location
             Container(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -448,195 +309,91 @@ class _HospitalState extends State<Hospital> {
                 ],
               ),
             ),
+            
             Container(
-              child: Column(
-                children: <Widget>[
-                  _text("Services", FontWeight.bold, 20.0, Colors.blue),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: linkservicedevices,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: _servicedropdownbutton(survices, index),
-                      );
-                    },
-                    separatorBuilder: (context, index) => Container(height: 10),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      InkWell(
-                        child: Text("ADD DEVICE"),
-                        onTap: () {
-                          selectedService.add(null);
-                          linkservicedevices++;
-                          setState(() {});
-                        },
+              child: Form(
+                key: _formKey,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Services',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 16),
                       ),
-                      // InkWell(
-                      //   child: Text("CLEAR ALL DEVICE"),
-                      //   onTap: () {},
-                      // ),
+                      ..._getFriends(),
+                      SizedBox(
+                        height: 20,
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
             Container(
-              child: Column(
-                children: <Widget>[
-                  _text("Surgery", FontWeight.bold, 20.0, Colors.blue),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: linksurgerydevices,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: _surgerydropdownbutton(surgeries, index),
-                      );
-                    },
-                    separatorBuilder: (context, index) => Container(height: 10),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      InkWell(
-                        child: Text("ADD DEVICE"),
-                        onTap: () {
-                          selectedSurgery.add(null);
-                          linksurgerydevices++;
-                          setState(() {});
-                        },
+              child: Form(
+                key: _surveyKey,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Surgey',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 16),
                       ),
-                      // InkWell(
-                      //   child: Text("CLEAR ALL DEVICE"),
-                      //   onTap: () {},
+                      ..._getSurgeries(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      //  FlatButton(
+                      //    onPressed: (){
+                      //      if(_surveyKey.currentState.validate()){
+                      //         _surveyKey.currentState.save();
+                      //         }
+                      //         },
+                      //         child: Text('Submit'),
+                      //         color: Colors.green,
                       // ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
             Container(
-              child: Column(
-                children: <Widget>[
-                  _text("Test Facility", FontWeight.bold, 20.0, Colors.blue),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: linktestdevices,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: _testdropdownbutton(tests, index),
-                      );
-                    },
-                    separatorBuilder: (context, index) => Container(height: 10),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      InkWell(
-                        child: Text("ADD DEVICE"),
-                        onTap: () {
-                          selectedtest.add(null);
-                          linktestdevices++;
-                          setState(() {});
-                        },
+              child: Form(
+                key: _testFacilityKey,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Test Facility',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 16),
                       ),
-                      // InkWell(
-                      //   child: Text("CLEAR ALL DEVICE"),
-                      //   onTap: () {},
+                      ..._getTestFacilities(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      //  FlatButton(
+                      //    onPressed: (){
+                      //      if(_surveyKey.currentState.validate()){
+                      //         _surveyKey.currentState.save();
+                      //         }
+                      //         },
+                      //         child: Text('Submit'),
+                      //         color: Colors.green,
                       // ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
-            // Container(
-            //   child: Form(
-            //     key: _formKey,
-            //     child: Padding(
-            //       padding: const EdgeInsets.all(5.0),
-            //       child: Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           Text(
-            //             'Services',
-            //             style: TextStyle(
-            //                 fontWeight: FontWeight.w700, fontSize: 16),
-            //           ),
-            //           ..._getFriends(),
-            //           SizedBox(
-            //             height: 20,
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            // Container(
-            //   child: Form(
-            //     key: _surveyKey,
-            //     child: Padding(
-            //       padding: const EdgeInsets.all(5.0),
-            //       child: Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           Text(
-            //             'Surgey',
-            //             style: TextStyle(
-            //                 fontWeight: FontWeight.w700, fontSize: 16),
-            //           ),
-            //           ..._getSurgeries(),
-            //           SizedBox(
-            //             height: 20,
-            //           ),
-            //           //  FlatButton(
-            //           //    onPressed: (){
-            //           //      if(_surveyKey.currentState.validate()){
-            //           //         _surveyKey.currentState.save();
-            //           //         }
-            //           //         },
-            //           //         child: Text('Submit'),
-            //           //         color: Colors.green,
-            //           // ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            // Container(
-            //   child: Form(
-            //     key: _testFacilityKey,
-            //     child: Padding(
-            //       padding: const EdgeInsets.all(5.0),
-            //       child: Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           Text(
-            //             'Test Facility',
-            //             style: TextStyle(
-            //                 fontWeight: FontWeight.w700, fontSize: 16),
-            //           ),
-            //           ..._getTestFacilities(),
-            //           SizedBox(
-            //             height: 20,
-            //           ),
-            //           //  FlatButton(
-            //           //    onPressed: (){
-            //           //      if(_surveyKey.currentState.validate()){
-            //           //         _surveyKey.currentState.save();
-            //           //         }
-            //           //         },
-            //           //         child: Text('Submit'),
-            //           //         color: Colors.green,
-            //           // ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
             Container(
               child: TextField(
                 decoration: InputDecoration(hintText: 'Branch Name'),
@@ -717,7 +474,7 @@ class _HospitalState extends State<Hospital> {
 
   //surgery
   List<Widget> _getSurgeries() {
-    List<Widget> surgeryTextFieldsList = [];
+    List surgeryTextFieldsList = [];
     for (int i = 0; i < surgeryList.length; i++) {
       surgeryTextFieldsList.add(Padding(
         padding: const EdgeInsets.symmetric(vertical: 16.0),
