@@ -141,3 +141,176 @@ class _FinalEditionState extends State<FinalEdition> {
   // );
 
 }
+
+
+
+
+
+
+///
+// return Scaffold(
+//       body: SingleChildScrollView(
+//         child: Column(
+//           children: <Widget>[
+//             //Name
+//             Container(
+//               //margin: const EdgeInsets.only(bottom:5.0),
+//               child: TextField(
+//                 decoration:
+//                     InputDecoration(hintText: 'Hospital Name In English'),
+//               ),
+//               padding: EdgeInsets.all(10.0),
+//             ),
+//             //Name
+//             Container(
+//               child: TextField(
+//                 decoration:
+//                     InputDecoration(hintText: 'Hospital Name In Bangla'),
+//               ),
+//               padding: EdgeInsets.all(10.0),
+//             ),
+//             //division
+//             Container(
+//                 width: 300.0,
+//                 margin: const EdgeInsets.all(30.0),
+//                 child: Column(
+//                   children: [
+//                     new DropdownButton(
+//                       underline: SizedBox(),
+//                       isExpanded: true,
+//                       icon: Icon(Icons.arrow_drop_down),
+//                       hint: Text("  $divisiondropdown"),
+//                       items: data.map((item) {
+//                         return new DropdownMenuItem(
+//                           child: new Text(item['name']),
+//                           value: item['id'].toString(),
+//                         );
+//                       }).toList(),
+//                       onChanged: (newVal) {
+//                         setState(() {
+//                           _mySelection = newVal;
+//                         });
+//                       },
+//                       value: _mySelection,
+//                     ),
+//                   ],
+//                 )),
+//             //city
+//             Container(
+//                 width: 300.0,
+//                 margin: const EdgeInsets.all(30.0),
+//                 child: Column(
+//                   children: [
+//                     new DropdownButton(
+//                       underline: SizedBox(),
+//                       isExpanded: true,
+//                       icon: Icon(Icons.arrow_drop_down),
+//                       hint: Text("  $citydropdown"),
+//                       items: city_data.map((item) {
+//                         return new DropdownMenuItem(
+//                           child: new Text(item['name']),
+//                           value: item['id'].toString(),
+//                         );
+//                       }).toList(),
+//                       onChanged: (cityVal) {
+//                         setState(() {
+//                           _citySelection = cityVal;
+//                         });
+//                       },
+//                       value: _citySelection,
+//                     ),
+//                   ],
+//                 )),
+//             //address
+//             Container(
+//               child: TextField(
+//                 decoration: InputDecoration(hintText: 'Address In English'),
+//               ),
+//               padding: EdgeInsets.all(10.0),
+//             ),
+//             //address
+//             Container(
+//               child: TextField(
+//                 decoration: InputDecoration(hintText: 'Address In Bangla'),
+//               ),
+//               padding: EdgeInsets.all(10.0),
+//             ),
+//             //Location
+//             Container(
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.start,
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: <Widget>[
+//                   FlatButton(
+//                     onPressed: () {
+//                       getCurrentLocation();
+//                     },
+//                     color: Colors.blue[800],
+//                     child: Icon(
+//                       Icons.location_on,
+//                       size: 20.0,
+//                       color: Colors.blue,
+//                     ),
+//                   ),
+//                   SizedBox(
+//                     height: 10.0,
+//                   ),
+//                   Text(locationmsg),
+//                 ],
+//               ),
+//             ),
+//             //branch name
+//             Container(
+//               child: TextField(
+//                 decoration: InputDecoration(hintText: 'Branch Name'),
+//               ),
+//               padding: EdgeInsets.all(10.0),
+//             ),
+//             //reciption no
+//             Container(
+//               child: TextField(
+//                 decoration: InputDecoration(hintText: 'Reception No'),
+//               ),
+//               padding: EdgeInsets.all(10.0),
+//             ),
+//             //service
+//             Container(
+//               margin: new EdgeInsets.all(10.0),
+//               child: new Column(
+//                 children: <Widget>[
+//                   Text(
+//                     'Services',
+//                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+//                   ),
+//                   serviceData.length == 0 ? dynamicTextField : result,
+//                   FlatButton(
+//                       color: Colors.green,
+//                       shape: new RoundedRectangleBorder(
+//                           borderRadius: new BorderRadius.circular(50.0)),
+//                       onPressed: addDynamic,
+//                       child: floatingIcon),
+//                   //serviceData.length == 0 ? submitButton : new Container(),
+//                 ],
+//               ),
+//             ),
+//             //image
+//             Container(
+//               child: Center(
+//                 child: Column(
+//                   children: <Widget>[
+//                     RaisedButton(
+//                       onPressed: () {
+//                         _showChoiceDialog(context);
+//                       },
+//                       child: Text("Select Image"),
+//                     ),
+//                     _decideImageView(),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+///
