@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 //import 'package:data_collection/helperClass/testFacilityField.dart';
 import 'package:data_collection/model/HospitalDataModelForSend.dart';
@@ -171,11 +172,11 @@ class _HospitalState extends State<Hospital> {
         .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
     var rresBody = json.decode(res.body);
 
-    var div = rresBody['data']['divisions'];
+    var city = rresBody['data']['divisions'];
 
-    for (int k = 0; k < div.toString().length; k++) {
-      city = div['cities'][k];
-    }
+    // for (int k = 0; k < div.toString().length; k++) {
+    //   city = div['cities'][k];
+    // }
 
     //city = diva['cities'];
     print('city: $city.');
@@ -249,24 +250,26 @@ class _HospitalState extends State<Hospital> {
             contentType: new MediaType('image', 'png')),
         "type": "image/png"
       },
-      "location_lat": latmsg,
-      "location_lng": longmsg,
+      "location_lat": double.parse(latmsg),
+      "location_lng": double.parse(longmsg),
       "branch_name": branchName.text,
-      "reception_phone": mobileNo.text,
+      "reception_phone": int.parse(mobileNo.text),
     });
 
     try {
       var response = await dio.post(apiUrl,
           data: formData,
           options: Options(headers: {
-            "accept": "*/*",
+            "accept": "application/json",
             "Authorization": "Bearer accresstoken",
             "Content-type": "multipart/form-data",
+            // "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
           }));
 
       return response.data;
     } on DioError catch (error) {
       print('error: $error');
+      print(error.response);
     }
   }
 
@@ -345,7 +348,6 @@ class _HospitalState extends State<Hospital> {
                       },
                       value: _citySelection,
                     ),
-                    
                   ],
                 )),
             //address
