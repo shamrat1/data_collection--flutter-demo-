@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'dart:ffi';
+//import 'dart:ffi';
 import 'dart:io';
 //import 'package:data_collection/helperClass/testFacilityField.dart';
-import 'package:data_collection/model/HospitalDataModelForSend.dart';
+//import 'package:data_collection/model/HospitalDataModelForSend.dart';
+import 'package:data_collection/postData/api.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
@@ -521,20 +522,40 @@ class _HospitalState extends State<Hospital> {
               child: Center(
                 child: Column(
                   children: <Widget>[
+                    // ignore: deprecated_member_use
                     FlatButton(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18.0),
                           side: BorderSide(color: Colors.green)),
-                      onPressed: () async {
-                        try {
-                          await postData().then((value) {
-                            print(value);
-                          });
-                        } catch (e) {
-                          print("--" * 20);
-                          print('Exception while uploading data: $e');
-                        }
+
+                      onPressed: () {
+                        List<int> imageBytes = imageFile.readAsBytesSync();
+                        String baseimage = base64Encode(imageBytes);
+                        NetWork().sendHospitalStore(
+                            context: context,
+                            name: hospitalNameEng.text,
+                            name_bn: hospitalNameBang.text,
+                            city_id: cityId,
+                            division_id: divId,
+                            address_line_1: addressInEng.text,
+                            image: baseimage,
+                            location_lat: (latmsg),
+                            location_lng: (longmsg),
+                            branch_name: branchName.text,
+                            reception_phone: (mobileNo.text));
                       },
+
+                      // onPressed: () async {
+
+                      //   // try {
+                      //   //   await postData().then((value) {
+                      //   //     print(value);
+                      //   //   });
+                      //   // } catch (e) {
+                      //   //   print("--" * 20);
+                      //   //   print('Exception while uploading data: $e');
+                      //   // }
+                      // },
                       child: Text("Submit"),
                     ),
                   ],
