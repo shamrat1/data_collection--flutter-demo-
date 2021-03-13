@@ -217,6 +217,22 @@ class _HospitalState extends State<Hospital> {
     );
   }
 
+  sendImage() async{
+    String imageFileName = imageFile.path.split('/').last;
+
+    FormData imageFileS = FormData.fromMap({
+      "file": await MultipartFile.fromFile(imageFile.path, filename: imageFileName),
+
+
+    });
+
+    return imageFileS;
+  }
+
+  //FormData images = await sendImage();
+  // ignore: top_level_instance_method
+  //var images = sendImage();
+
   //Dio part
   Dio dio = new Dio();
   Future postData() async {
@@ -234,6 +250,12 @@ class _HospitalState extends State<Hospital> {
       //longitudemessage = longmsg as int;
     });
     String imageFileName = imageFile.path.split('/').last;
+
+    FormData imageFileS = FormData.fromMap({
+"file": await MultipartFile.fromFile(imageFile.path, filename: imageFileName),
+
+
+    });
 
     FormData formData = new FormData.fromMap({
       "name": hospitalNameEng.text,
@@ -319,6 +341,7 @@ class _HospitalState extends State<Hospital> {
                       onChanged: (newVal) {
                         setState(() {
                           _mySelection = newVal;
+                          print(_mySelection);
                         });
                       },
                       value: _mySelection,
@@ -528,15 +551,23 @@ class _HospitalState extends State<Hospital> {
                           borderRadius: BorderRadius.circular(18.0),
                           side: BorderSide(color: Colors.green)),
 
-                      onPressed: () {
+                      onPressed: ()  {
+
+                        String imageFileName = imageFile.path.split('/').last;
+
+                        // FormData imageFileS = FormData.fromMap({
+                        //   "file": await MultipartFile.fromFile(imageFile.path, filename: imageFileName),
+                        //
+                        //
+                        // });
                         List<int> imageBytes = imageFile.readAsBytesSync();
                         String baseimage = base64Encode(imageBytes);
                         NetWork().sendHospitalStore(
                             context: context,
                             name: hospitalNameEng.text,
                             name_bn: hospitalNameBang.text,
-                            city_id: cityId,
-                            division_id: divId,
+                            city_id: _citySelection,
+                            division_id: _mySelection,
                             address_line_1: addressInEng.text,
                             image: baseimage,
                             location_lat: (latmsg),
@@ -570,7 +601,7 @@ class _HospitalState extends State<Hospital> {
 
   //gallery
   _openGallery(BuildContext context) async {
-    var picture = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var picture = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 50);
     setState(() {
       imageFile = picture;
     });
