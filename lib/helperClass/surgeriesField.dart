@@ -1,50 +1,223 @@
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
-import 'package:data_collection/players.dart';
+
 import 'package:flutter/material.dart';
 
+class MultiSelectDialog2 extends StatelessWidget {
+  /// List to display the answer.
+  final List<String> answers;
 
-class SurgeryTextField extends StatefulWidget {
-   final int index;
-  SurgeryTextField(this.index);
-  @override
-  _SurgeryTextFieldState createState() => _SurgeryTextFieldState();
-}
+  /// Widget to display the question.
+  final Widget question;
 
- class _SurgeryTextFieldState extends State<SurgeryTextField> {
-  TextEditingController _surgeryNameController;
+  /// List to hold the selected answer
+  /// i.e. ['a'] or ['a','b'] or ['a','b','c'] etc.
+  final List<String> selectedItems = [];
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _surgeryNameController = TextEditingController();
-  }
+  /// Map that holds selected option with a boolean value
+  /// i.e. { 'a' : false}.
+  static Map<String, bool> mappedItem;
 
-  @override
-  void dispose() {
-    _surgeryNameController.dispose();
-    // TODO: implement dispose
-    super.dispose();
+  MultiSelectDialog2({this.answers, this.question});
+
+  /// Function that converts the list answer to a map.
+  Map<String, bool> initMap() {
+    return mappedItem = Map.fromIterable(answers,
+        key: (k) => k.toString(),
+        value: (v) {
+          if (v != true && v != false)
+            return false;
+          else
+            return v as bool;
+        });
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      // ignore: non_constant_identifier_names
-      var _HospitalState;
-      _surgeryNameController.text = _HospitalState.surgeryList[widget.index] ?? '';
-    });
-    var _HospitalState;
-    return TextFormField(
-      controller:
-          _surgeryNameController, // save text field data in friends list at index
-      // whenever text field value changes
-      onChanged: (v) => _HospitalState.surgeryList[widget.index] = v,
-      decoration: InputDecoration(hintText: 'Add a unique code: Surgery Details\''),
-      validator: (v) {
-        if (v.trim().isEmpty) return 'Please enter something';
-        return null;
-      },
+    if (mappedItem == null) {
+      initMap();
+    }
+    return SimpleDialog(
+      title: question,
+      children: [
+        ...mappedItem.keys.map((String key) {
+          return StatefulBuilder(
+            builder: (_, StateSetter setState) => CheckboxListTile(
+                title: Text(key), // Displays the option
+                value: mappedItem[key], // Displays checked or unchecked value
+                controlAffinity: ListTileControlAffinity.platform,
+                onChanged: (value) => setState(() => mappedItem[key] = value)),
+          );
+        }).toList(),
+        Align(
+            alignment: Alignment.center,
+            child: ElevatedButton(
+                style: ButtonStyle(visualDensity: VisualDensity.comfortable),
+                child: Text('Submit'),
+                onPressed: () {
+                  // Clear the list
+
+                  selectedItems.clear();
+
+                  // Traverse each map entry
+                  mappedItem.forEach((key, value) {
+                    if (value == true) {
+                      selectedItems.add(key);
+                    }
+                  });
+
+                  // Close the Dialog & return selectedItems
+                  Navigator.pop(context, selectedItems);
+                }))
+      ],
     );
   }
 }
+
+class MultiSelectDialog4 extends StatelessWidget {
+  /// List to display the answer.
+  final List<String> answers;
+
+  /// Widget to display the question.
+  final Widget question;
+
+  /// List to hold the selected answer
+  /// i.e. ['a'] or ['a','b'] or ['a','b','c'] etc.
+  final List<String> selectedItems = [];
+
+  /// Map that holds selected option with a boolean value
+  /// i.e. { 'a' : false}.
+  static Map<String, bool> mappedItem;
+
+  MultiSelectDialog4({this.answers, this.question});
+
+  /// Function that converts the list answer to a map.
+  Map<String, bool> initMap() {
+    return mappedItem = Map.fromIterable(answers,
+        key: (k) => k.toString(),
+        value: (v) {
+          if (v != true && v != false)
+            return false;
+          else
+            return v as bool;
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (mappedItem == null) {
+      initMap();
+    }
+    return SimpleDialog(
+      title: question,
+      children: [
+        ...mappedItem.keys.map((String key) {
+          return StatefulBuilder(
+            builder: (_, StateSetter setState) => CheckboxListTile(
+                title: Text(key), // Displays the option
+                value: mappedItem[key], // Displays checked or unchecked value
+                controlAffinity: ListTileControlAffinity.platform,
+                onChanged: (value) => setState(() => mappedItem[key] = value)),
+          );
+        }).toList(),
+        Align(
+            alignment: Alignment.center,
+            child: ElevatedButton(
+                style: ButtonStyle(visualDensity: VisualDensity.comfortable),
+                child: Text('Submit'),
+                onPressed: () {
+                  // Clear the list
+
+                  selectedItems.clear();
+
+                  // Traverse each map entry
+                  mappedItem.forEach((key, value) {
+                    if (value == true) {
+                      selectedItems.add(key);
+                    }
+                  });
+
+                  // Close the Dialog & return selectedItems
+                  Navigator.pop(context, selectedItems);
+                }))
+      ],
+    );
+  }
+}
+
+
+
+class MultiSelectDialog3 extends StatelessWidget {
+  /// List to display the answer.
+  final List<String> answers;
+
+  /// Widget to display the question.
+  final Widget question;
+
+  /// List to hold the selected answer
+  /// i.e. ['a'] or ['a','b'] or ['a','b','c'] etc.
+  final List<String> selectedItems = [];
+
+  /// Map that holds selected option with a boolean value
+  /// i.e. { 'a' : false}.
+  static Map<String, bool> mappedItem;
+
+  MultiSelectDialog3({this.answers, this.question});
+
+  /// Function that converts the list answer to a map.
+  Map<String, bool> initMap() {
+    return mappedItem = Map.fromIterable(answers,
+        key: (k) => k.toString(),
+        value: (v) {
+          if (v != true && v != false)
+            return false;
+          else
+            return v as bool;
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (mappedItem == null) {
+      initMap();
+    }
+    return SimpleDialog(
+      title: question,
+      children: [
+        ...mappedItem.keys.map((String key) {
+          return StatefulBuilder(
+            builder: (_, StateSetter setState) => CheckboxListTile(
+                title: Text(key), // Displays the option
+                value: mappedItem[key], // Displays checked or unchecked value
+                controlAffinity: ListTileControlAffinity.platform,
+                onChanged: (value) => setState(() => mappedItem[key] = value)),
+          );
+        }).toList(),
+        Align(
+            alignment: Alignment.center,
+            child: ElevatedButton(
+                style: ButtonStyle(visualDensity: VisualDensity.comfortable),
+                child: Text('Submit'),
+                onPressed: () {
+                  // Clear the list
+
+                  selectedItems.clear();
+
+                  // Traverse each map entry
+                  mappedItem.forEach((key, value) {
+                    if (value == true) {
+                      selectedItems.add(key);
+                    }
+                  });
+
+                  // Close the Dialog & return selectedItems
+                  Navigator.pop(context, selectedItems);
+                }))
+      ],
+    );
+  }
+}
+
+
+
+
+
+

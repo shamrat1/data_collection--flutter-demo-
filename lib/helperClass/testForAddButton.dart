@@ -1,59 +1,80 @@
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+
 import 'package:flutter/material.dart';
 
-import '../players.dart';
 
-class FriendTextFields extends StatefulWidget {
-  final int index;
-  // final List<String> friendsList;
-  FriendTextFields(this.index);
-  final GlobalKey<_FriendTextFieldsState> serviceKey = new GlobalKey();
-  @override
-  _FriendTextFieldsState createState() => _FriendTextFieldsState();
-}
 
-class _FriendTextFieldsState extends State<FriendTextFields> {
-  GlobalKey<AutoCompleteTextFieldState<Division>> key = new GlobalKey();
-  TextEditingController _serviceController;
-  AutoCompleteTextField searchTextField;
 
-  void _loadData() async {
-    await PlayersViewModel.loadPlayers();
-  }
 
-  @override
-  void initState() {
-    _loadData();
-    super.initState();
-    _serviceController = TextEditingController();
-  }
 
-  @override
-  void dispose() {
-    _serviceController.dispose();
-    super.dispose();
+
+/// A Custom Dialog that displays a single question & list of answers.
+class MultiSelectDialog extends StatelessWidget {
+  /// List to display the answer.
+  final List<String> answers;
+
+  /// Widget to display the question.
+  final Widget question;
+
+  /// List to hold the selected answer
+  /// i.e. ['a'] or ['a','b'] or ['a','b','c'] etc.
+  final List<String> selectedItems = [];
+
+  /// Map that holds selected option with a boolean value
+  /// i.e. { 'a' : false}.
+  static Map<String, bool> mappedItem;
+
+  MultiSelectDialog({this.answers, this.question});
+
+  /// Function that converts the list answer to a map.
+  Map<String, bool> initMap() {
+    return mappedItem = Map.fromIterable(answers,
+        key: (k) => k.toString(),
+        value: (v) {
+          if (v != true && v != false)
+            return false;
+          else
+            return v as bool;
+        });
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      var _HospitalState;
-      _serviceController.text = _HospitalState.friendsList[widget.index] ?? '';
-    });
+    if (mappedItem == null) {
+      initMap();
+    }
+    return SimpleDialog(
+      title: question,
+      children: [
+        ...mappedItem.keys.map((String key) {
+          return StatefulBuilder(
+            builder: (_, StateSetter setState) => CheckboxListTile(
+                title: Text(key), // Displays the option
+                value: mappedItem[key], // Displays checked or unchecked value
+                controlAffinity: ListTileControlAffinity.platform,
+                onChanged: (value) => setState(() => mappedItem[key] = value)),
+          );
+        }).toList(),
+        Align(
+            alignment: Alignment.center,
+            child: ElevatedButton(
+                style: ButtonStyle(visualDensity: VisualDensity.comfortable),
+                child: Text('Submit'),
+                onPressed: () {
+                  // Clear the list
 
-    var _HospitalState;
-    return TextFormField(
-      controller:
-          _serviceController, // save text field data in friends list at index
-      // whenever text field value changes
+                  selectedItems.clear();
 
-      onChanged: (v) => _HospitalState.friendsList[widget.index] = v,
-      decoration:
-          InputDecoration(hintText: 'Add a unique code: Service Name\''),
-      validator: (v) {
-        if (v.trim().isEmpty) return 'Please enter something';
-        return null;
-      },
+                  // Traverse each map entry
+                  mappedItem.forEach((key, value) {
+                    if (value == true) {
+                      selectedItems.add(key);
+                    }
+                  });
+
+                  // Close the Dialog & return selectedItems
+                  Navigator.pop(context, selectedItems);
+                }))
+      ],
     );
   }
 }
