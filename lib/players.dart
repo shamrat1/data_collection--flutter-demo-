@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+
 
 Helper helperFromJson(String str) => Helper.fromJson(json.decode(str));
 
@@ -144,33 +143,33 @@ class PlayersViewModel {
   static List<Division> players;
   static List<City> cityFetchData;
 
-  static Future loadPlayers() async {
-    try {
-      final String url =
-          "http://139.59.112.145/api/registration/helper/hospital";
+  // static Future loadPlayers() async {
+    // try {
+    //   final String url =
+    //       "http://139.59.112.145/api/registration/helper/hospital";
 
-      players = new List<Division>();
-      var res = await http
-          .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
-      Map parsedJson = json.decode(res.body);
-      var categoryJson = parsedJson['data']['divisions'] as List;
-      for (int i = 0; i < categoryJson.length; i++) {
-        players.add(new Division.fromJson(categoryJson[i]));
-      }
+    //   players = new List<Division>();
+    //   var res = await http
+    //       .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    //   Map parsedJson = json.decode(res.body);
+    //   var categoryJson = parsedJson['data']['divisions'] as List;
+    //   for (int i = 0; i < categoryJson.length; i++) {
+    //     players.add(new Division.fromJson(categoryJson[i]));
+    //   }
 
-      cityFetchData = new List<City>();
-      var cityJson = parsedJson['data']['divisions'] as List;
-      for (int j = 0; j < cityJson.length; j++) {
-        //var allinfo = cityJson[j];
-        //for (int k = 0; k < allinfo.toString().length; k++) {
-          cityFetchData.add(new City.fromJson(cityJson[j]));
-        //}
-        //cityFetchData.add(new City.fromJson(cityJson[j]));
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
+    //   cityFetchData = new List<City>();
+    //   var cityJson = parsedJson['data']['divisions'] as List;
+    //   for (int j = 0; j < cityJson.length; j++) {
+    //     //var allinfo = cityJson[j];
+    //     //for (int k = 0; k < allinfo.toString().length; k++) {
+    //       cityFetchData.add(new City.fromJson(cityJson[j]));
+    //     //}
+    //     //cityFetchData.add(new City.fromJson(cityJson[j]));
+    //   }
+    // } catch (e) {
+    //   print(e);
+    // }
+ // }
 }
 
 

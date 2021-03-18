@@ -1,3 +1,4 @@
+
 import 'package:data_collection/pages/clinic.dart';
 import 'package:data_collection/pages/doctor.dart';
 import 'package:data_collection/pages/hospital.dart';
@@ -68,9 +69,9 @@ class _MyHomePageState extends State<MyHomePage>
       body: TabBarView(
         controller: _controller,
         children: [
-          AutoCompleteDemo(),
+          Doctor(),
           Hospital(),
-          FinalEdition(),
+          Clinic(),
         ],
       ),
     );
