@@ -1,19 +1,14 @@
 import 'dart:convert';
-//import 'dart:ffi';
 import 'dart:io';
-//import 'package:data_collection/helperClass/testFacilityField.dart';
-//import 'package:data_collection/model/HospitalDataModelForSend.dart';
+import 'package:data_collection/helperClass/testFacilityField.dart';
+import 'package:data_collection/model/Hospitalmodel.dart';
 import 'package:data_collection/postData/api.dart';
-import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
-////import 'package:data_collection/helperClass/testForAddButton.dart';
-//import 'package:data_collection/helperClass/surgeriesField.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:data_collection/players.dart';
-import 'package:http_parser/http_parser.dart';
+
 
 class Hospital extends StatefulWidget {
   @override
@@ -21,15 +16,19 @@ class Hospital extends StatefulWidget {
 }
 
 class _HospitalState extends State<Hospital> {
+  List<String> servicesItems = [];
+  List<String> surguriesItems = [];
+  List<String> testFacilitiesItems = [];
+
+
+
   var locationmsg = " ";
   var latmsg = '';
   var longmsg = '';
   double currentlat;
   double currentlong;
   File imageFile;
-  AutoCompleteTextField searchTextField;
-  GlobalKey<AutoCompleteTextFieldState<Division>> key = new GlobalKey();
-  static List<Division> divisions = new List<Division>();
+
   bool loading = true;
 
   final hospitalNameEng = TextEditingController();
@@ -45,15 +44,11 @@ class _HospitalState extends State<Hospital> {
   // var locationLatitude;
   //var locationLongitude;
 
-  //service, test_facility, surgery
-  final _serviceKey = GlobalKey<FormState>();
-  final _surgeryKey = GlobalKey<FormState>();
-  final _testFacilityKey = GlobalKey<FormState>();
-  // TextEditingController _nameController;
-  static List<String> friendsList = [null];
-  static List<String> serviceTextList = [null];
-  static List<String> surgeryList = [null];
-  static List<String> testFacilityList = [null];
+  final _formKeytest = GlobalKey<FormState>();
+  final _formKeyservices = GlobalKey<FormState>();
+
+  final _formKeySurgeries = GlobalKey<FormState>();
+
   String servicejson;
   String surgeryjson;
   String testfacilityjson;
@@ -62,9 +57,6 @@ class _HospitalState extends State<Hospital> {
   int latitudemessage;
   int longitudemessage;
 
-  ////////////////////////
-  ///TEST Dropdown/////////////
-  /////////////////////
   int surveyquestionnum = 1;
   int surveyquestiontotal = 1;
 
@@ -73,7 +65,7 @@ class _HospitalState extends State<Hospital> {
   String divisiondropdown = "Select Division";
   String citydropdown = "Select Area";
   String testgorir = "Select testgorir";
-  List serviceList = List();
+  List serviceList = [];
 
   // for map
   Future<Position> _determinePosition() async {
@@ -104,8 +96,8 @@ class _HospitalState extends State<Hospital> {
   }
 
   void getCurrentLocation() async {
-    var position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    // var position = await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
     var lastPosition = await Geolocator.getLastKnownPosition();
     //currentlat = lastPosition.latitude;
     //currentlong = lastPosition.longitude;
@@ -149,16 +141,20 @@ class _HospitalState extends State<Hospital> {
         });
   }
 
-  final String url = "http://139.59.112.145/api/registration/helper/hospital";
+//  final String url = "http://139.59.112.145/api/registration/helper/hospital";
 
-  List data = List(); //edited line
-  List city_data = List();
+  List data =[]; //edited line
+  List cityData = [];
   var city;
   var resBody;
 
+  var url = Uri(
+      scheme: "http",
+      host: "139.59.112.145",
+      path: "/api/registration/helper/hospital/");
+
   Future<String> getSWData() async {
-    var res = await http
-        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    var res = await http.get(url, headers: {"Accept": "application/json"});
     resBody = json.decode(res.body);
 
     var user = resBody['data']['divisions'];
@@ -169,8 +165,7 @@ class _HospitalState extends State<Hospital> {
   }
 
   Future<String> getCity() async {
-    var res = await http
-        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    var res = await http.get(url, headers: {"Accept": "application/json"});
     var rresBody = json.decode(res.body);
 
     var city = rresBody['data']['divisions'];
@@ -182,7 +177,7 @@ class _HospitalState extends State<Hospital> {
     //city = diva['cities'];
     print('city: $city.');
     setState(() {
-      city_data = city;
+      cityData = city;
     });
 
     return "Sucess";
@@ -196,9 +191,9 @@ class _HospitalState extends State<Hospital> {
   }
 
   //autoCompleteTextView test
-  var _divisionController = new TextEditingController();
+ // var _divisionController = new TextEditingController();
   // var _cityController = new TextEditingController();
-
+  var uses;
   // for image
   Widget _decideImageView() {
     if (imageFile == null) {
@@ -217,87 +212,29 @@ class _HospitalState extends State<Hospital> {
     );
   }
 
-  sendImage() async{
-    String imageFileName = imageFile.path.split('/').last;
+  // List<String> data = [];
+  var user, user2, user1;
 
-    FormData imageFileS = FormData.fromMap({
-      "file": await MultipartFile.fromFile(imageFile.path, filename: imageFileName),
-
-
-    });
-
-    return imageFileS;
-  }
-
-  //FormData images = await sendImage();
-  // ignore: top_level_instance_method
-  //var images = sendImage();
-
-  //Dio part
-  Dio dio = new Dio();
-  Future postData() async {
-    final String apiUrl =
-        "http://139.59.112.145/api/registration/hospital/store";
-    setState(() {
-      servicejson = jsonEncode(serviceTextList);
-      surgeryjson = jsonEncode(surgeryList);
-      testfacilityjson = jsonEncode(testFacilityList);
-
-      //cityId = _citySelection;
-      //divId = _mySelection;
-
-      //latitudemessage = latmsg as int;
-      //longitudemessage = longmsg as int;
-    });
-    String imageFileName = imageFile.path.split('/').last;
-
-    FormData imageFileS = FormData.fromMap({
-"file": await MultipartFile.fromFile(imageFile.path, filename: imageFileName),
-
-
-    });
-
-    FormData formData = new FormData.fromMap({
-      "name": hospitalNameEng.text,
-      "name_bn": hospitalNameBang.text,
-      "city_id": _citySelection,
-      "division_id": _mySelection,
-      "address_line_1": addressInEng.text,
-      "address_line_2": addressInBng.text,
-      "Services": servicejson,
-      "Surgeries": surgeryjson,
-      "test_facilities": testfacilityjson,
-      "Image": {
-        "image": await MultipartFile.fromFile(imageFile.path,
-            filename: imageFileName,
-            contentType: new MediaType('image', 'png')),
-        "type": "image/png"
-      },
-      "location_lat": double.parse(latmsg),
-      "location_lng": double.parse(longmsg),
-      "branch_name": branchName.text,
-      "reception_phone": int.parse(mobileNo.text),
-    });
-
-    try {
-      var response = await dio.post(apiUrl,
-          data: formData,
-          options: Options(headers: {
-            "accept": "application/json",
-            "Authorization": "Bearer accresstoken",
-            "Content-type": "multipart/form-data",
-            // "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-          }));
-
-      return response.data;
-    } on DioError catch (error) {
-      print('error: $error');
-      print(error.response);
+  fetchDivisons() async {
+    final response = await http.get(
+      Uri(
+          scheme: "http",
+          host: "139.59.112.145",
+          path: "/api/registration/helper/hospital/"),
+    );
+    final jsonResponse = json.decode(response.body);
+    Helper helper = new Helper.fromJson(jsonResponse);
+    for (var i = 0; i < helper.data.surguries.length; i++) {
+      //  data.add(helper.data.surguries[i].name);
     }
+    // print(data);
+    return helper;
   }
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -396,22 +333,18 @@ class _HospitalState extends State<Hospital> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  FlatButton(
+                  TextButton(
                     onPressed: () {
                       getCurrentLocation();
                     },
-                    color: Colors.blue[800],
+                    //color: Colors.blue[800],
                     child: Icon(
                       Icons.location_on,
                       size: 20.0,
                       color: Colors.blue,
                     ),
                   ),
-                  // SizedBox(
-                  //   height: 10.0,
-                  // ),
-                  // Text(latmsg),
-                  // Text(longmsg),
+
                 ],
               ),
             ),
@@ -455,81 +388,191 @@ class _HospitalState extends State<Hospital> {
               ),
               padding: EdgeInsets.all(10.0),
             ),
-            //service
-            Container(
-              child: Form(
-                key: _serviceKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Services',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16),
-                      ),
-                      ..._getServices(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                FutureBuilder(
+                    future: fetchDivisons(),
+                    builder: (context, snapshot) {
+                      if (snapshot.data == null) {
+                        return CupertinoActivityIndicator();
+                      } else {
+                        for (var i = 0;
+                            i < snapshot.data.data.services.length;
+                            i++) {
+                         // user = snapshot.data.data.services[i];
+                          uses = snapshot.data.data.services[i];
+                        }
+                        for (var i = 0;
+                            i < snapshot.data.data.surguries.length;
+                            i++) {
+                          user1 = snapshot.data.data.surguries[i];
+                        }
+                        for (var i = 0;
+                            i < snapshot.data.data.testFacilities.length;
+                            i++) {
+                          user2 = snapshot.data.data.testFacilities[i];
+                        }
+
+                        return Column(
+                          //mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("services"),
+                                Container(
+                                  child: Form(
+                                    key: _formKeyservices,
+                                    child: MultiSelectFormFieldForServies(
+                                      context: context,
+                                      buttonText: 'services',
+                                      itemList: [
+                                        //user,
+                                        uses.id.toString() +
+                                            ")  " +
+                                            uses.name.toString(),
+                                      ],
+                                      questionText: 'Select Your services',
+                                      validator: (flavours1) => flavours1
+                                                  .length ==
+                                              0
+                                          ? 'Please select at least one services!'
+                                          : null,
+                                      onSaved: (flavours1) {
+                                        print(flavours1);
+                                        //var items = flavours1.map((e) => e.replaceAll(')', ' '));
+                                        servicesItems = flavours1
+                                            .map((e) => e.split(")")[0]).toList();
+                                       // print(items.toString());
+                                      //  servicesItems = items.toList();
+                                        // servicesItems = items.toList();
+                                        print(servicesItems);
+
+                                        // Logic to save selected flavours in the database
+                                      },
+                                    ),
+                                    onChanged: () {
+                                      if (_formKeyservices.currentState
+                                          .validate()) {
+                                        // Invokes the OnSaved Method
+                                       // servicesItems.cast();
+
+                                        _formKeyservices.currentState.save();
+
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("surguries"),
+                                Container(
+                                  child: Form(
+                                    key: _formKeySurgeries,
+                                    child: MultiSelectFormFieldForSurgeries(
+                                      context: context,
+                                      buttonText: 'surguries',
+                                      itemList: [
+
+                                        user1.id.toString() +
+                                            ")  " +
+                                            user1.name.toString(),
+
+
+
+                                      ],
+                                      questionText: 'Select Your surguries',
+                                      validator: (flavours2) => flavours2
+                                                  .length ==
+                                              0
+                                          ? 'Please select at least one flavor!'
+                                          : null,
+                                      onSaved: (flavours2) {
+
+
+                                        surguriesItems = flavours2
+                                            .map((e) => e.split(")")[0]).toList();
+
+
+
+                                        // Logic to save selected flavours in the database
+                                      },
+                                    ),
+                                    onChanged: () {
+                                      if (_formKeySurgeries.currentState
+                                          .validate()) {
+                                        // Invokes the OnSaved Method
+                                        _formKeySurgeries.currentState.save();
+
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("testFacilities"),
+                                Container(
+                                  child: Form(
+                                    key: _formKeytest,
+                                    child:
+                                        MultiSelectFormFieldForTestFacilities(
+                                      context: context,
+                                      buttonText: 'testFacilities',
+                                      itemList: [
+                                        user2.id.toString() +
+                                            ")  " +
+                                            user2.name.toString(),
+                                      ],
+                                      questionText:
+                                          'Select Your testFacilities',
+                                      validator: (flavours3) => flavours3
+                                                  .length ==
+                                              0
+                                          ? 'Please select at least one testFacilities!'
+                                          : null,
+                                      onSaved: (flavours3) {
+                                        testFacilitiesItems = flavours3
+                                            .map((e) => e.split(")")[0]).toList();
+
+
+
+                                        // Logic to save selected flavours in the database
+                                      },
+                                    ),
+                                    onChanged: () {
+                                      if (_formKeytest.currentState
+                                          .validate()) {
+                                        // Invokes the OnSaved Method
+                                        _formKeytest.currentState.save();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+                    }),
+              ],
             ),
-            //test_facility
-            Container(
-              child: Form(
-                key: _testFacilityKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Test Facility',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16),
-                      ),
-                      ..._getTestFacilities(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            //surgeries
-            Container(
-              child: Form(
-                key: _surgeryKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Surgery',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16),
-                      ),
-                      ..._getSurgery(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+
             // //image
             Container(
               child: Center(
                 child: Column(
                   children: <Widget>[
-                    RaisedButton(
+                    ElevatedButton(
                       onPressed: () {
                         _showChoiceDialog(context);
                       },
@@ -550,43 +593,33 @@ class _HospitalState extends State<Hospital> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18.0),
                           side: BorderSide(color: Colors.green)),
+                      onPressed: () {
+                        //String imageFileName = imageFile.path.split('/').last;
 
-                      onPressed: ()  {
+                        print("/////////////");
+                      print(testFacilitiesItems);
+                      print(surguriesItems);
+                        print(servicesItems);
 
-                        String imageFileName = imageFile.path.split('/').last;
-
-                        // FormData imageFileS = FormData.fromMap({
-                        //   "file": await MultipartFile.fromFile(imageFile.path, filename: imageFileName),
-                        //
-                        //
-                        // });
                         List<int> imageBytes = imageFile.readAsBytesSync();
                         String baseimage = base64Encode(imageBytes);
                         NetWork().sendHospitalStore(
                             context: context,
                             name: hospitalNameEng.text,
-                            name_bn: hospitalNameBang.text,
-                            city_id: _citySelection,
-                            division_id: _mySelection,
-                            address_line_1: addressInEng.text,
+                            nameBangla: hospitalNameBang.text,
+                            cityId: _citySelection,
+                            divisionId: _mySelection,
+                            services: servicesItems,
+                            surgeries: surguriesItems,
+                            testFacilities: testFacilitiesItems,
+                            addressLine1: addressInEng.text,
+                            addressLine2: addressInBng.text,
                             image: baseimage,
-                            location_lat: (latmsg),
-                            location_lng: (longmsg),
-                            branch_name: branchName.text,
-                            reception_phone: (mobileNo.text));
+                            locationLat: (latmsg),
+                            locationLng: (longmsg),
+                            branchName: branchName.text,
+                            receptionPhone: (mobileNo.text));
                       },
-
-                      // onPressed: () async {
-
-                      //   // try {
-                      //   //   await postData().then((value) {
-                      //   //     print(value);
-                      //   //   });
-                      //   // } catch (e) {
-                      //   //   print("--" * 20);
-                      //   //   print('Exception while uploading data: $e');
-                      //   // }
-                      // },
                       child: Text("Submit"),
                     ),
                   ],
@@ -601,322 +634,27 @@ class _HospitalState extends State<Hospital> {
 
   //gallery
   _openGallery(BuildContext context) async {
-    var picture = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+    final _picker = ImagePicker();
+    final pickedFile =
+        await _picker.getImage(source: ImageSource.gallery, imageQuality: 50);
+    final File file = File(pickedFile.path);
+    // var picture = await ImagePicker.getImage(source: ImageSource.gallery, imageQuality: 50);
     setState(() {
-      imageFile = picture;
+      imageFile = file;
     });
     Navigator.of(context).pop();
   }
 
   //Camera
   _openCamera(BuildContext context) async {
-    var picture = await ImagePicker.pickImage(source: ImageSource.camera);
+    final _picker = ImagePicker();
+    final pickedFile =
+        await _picker.getImage(source: ImageSource.camera, imageQuality: 50);
+    final File file = File(pickedFile.path);
+
     setState(() {
-      imageFile = picture;
+      imageFile = file;
     });
     Navigator.of(context).pop();
-  }
-
-  //services
-  List<Widget> _getServices() {
-    List<Widget> serviceTextFieldsList = [];
-    for (int i = 0; i < serviceTextList.length; i++) {
-      serviceTextFieldsList.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: Row(
-          children: [
-            Expanded(child: FriendTextFields(i)),
-            SizedBox(
-              width: 16,
-            ),
-            // we need add button at last friends row only
-            _addRemoveServiceButton(i == serviceTextList.length - 1, i),
-          ],
-        ),
-      ));
-    }
-    return serviceTextFieldsList;
-  }
-
-  Widget _addRemoveServiceButton(bool add, int index) {
-    return InkWell(
-      onTap: () {
-        if (add) {
-          // add new text-fields at the top of all friends textfields
-          serviceTextList.insert(0, null);
-        } else
-          serviceTextList.removeAt(index);
-        setState(() {});
-      },
-      child: Container(
-        width: 30,
-        height: 30,
-        decoration: BoxDecoration(
-          color: (add) ? Colors.green : Colors.red,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Icon(
-          (add) ? Icons.add : Icons.remove,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  //test facility
-
-  List<Widget> _getTestFacilities() {
-    List<Widget> testFacilityTextFieldsList = [];
-    for (int i = 0; i < testFacilityList.length; i++) {
-      testFacilityTextFieldsList.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: Row(
-          children: [
-            Expanded(child: TestFacilityTextField(i)),
-            SizedBox(
-              width: 16,
-            ),
-            // we need add button at last friends row only
-            _addRemoveTestButton(i == testFacilityList.length - 1, i),
-          ],
-        ),
-      ));
-    }
-    return testFacilityTextFieldsList;
-  }
-
-  Widget _addRemoveTestButton(bool add, int index) {
-    return InkWell(
-      onTap: () {
-        if (add) {
-          // add new text-fields at the top of all friends textfields
-          testFacilityList.insert(0, null);
-        } else
-          testFacilityList.removeAt(index);
-        setState(() {});
-      },
-      child: Container(
-        width: 30,
-        height: 30,
-        decoration: BoxDecoration(
-          color: (add) ? Colors.green : Colors.red,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Icon(
-          (add) ? Icons.add : Icons.remove,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  //Surgery
-
-  List<Widget> _getSurgery() {
-    List<Widget> surgeryTextFieldsList = [];
-    for (int i = 0; i < surgeryList.length; i++) {
-      surgeryTextFieldsList.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: Row(
-          children: [
-            Expanded(child: SurgeryTextField(i)),
-            SizedBox(
-              width: 16,
-            ),
-            // we need add button at last friends row only
-            _addRemoveSurgeryButton(i == surgeryList.length - 1, i),
-          ],
-        ),
-      ));
-    }
-    return surgeryTextFieldsList;
-  }
-
-  Widget _addRemoveSurgeryButton(bool add, int index) {
-    return InkWell(
-      onTap: () {
-        if (add) {
-          // add new text-fields at the top of all friends textfields
-          surgeryList.insert(0, null);
-        } else
-          surgeryList.removeAt(index);
-        setState(() {});
-      },
-      child: Container(
-        width: 30,
-        height: 30,
-        decoration: BoxDecoration(
-          color: (add) ? Colors.green : Colors.red,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Icon(
-          (add) ? Icons.add : Icons.remove,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-}
-
-////////////////
-///Service/////
-//////////////
-
-class FriendTextFields extends StatefulWidget {
-  final int index;
-  // final List<String> friendsList;
-  FriendTextFields(this.index);
-  final GlobalKey<_FriendTextFieldsState> serviceKey = new GlobalKey();
-  @override
-  _FriendTextFieldsState createState() => _FriendTextFieldsState();
-}
-
-class _FriendTextFieldsState extends State<FriendTextFields> {
-  GlobalKey<AutoCompleteTextFieldState<Division>> key = new GlobalKey();
-  TextEditingController _serviceController;
-  AutoCompleteTextField searchTextField;
-
-  void _loadData() async {
-    await PlayersViewModel.loadPlayers();
-  }
-
-  @override
-  void initState() {
-    _loadData();
-    super.initState();
-    _serviceController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _serviceController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      //var _HospitalState;
-      _serviceController.text =
-          _HospitalState.serviceTextList[widget.index] ?? '';
-    });
-
-    //var _HospitalState;
-    return TextFormField(
-      controller:
-          _serviceController, // save text field data in friends list at index
-      // whenever text field value changes
-
-      onChanged: (v) => _HospitalState.serviceTextList[widget.index] = v,
-      decoration:
-          InputDecoration(hintText: 'Add a unique code: Service Name\''),
-      validator: (v) {
-        if (v.trim().isEmpty) return 'Please enter something';
-        return null;
-      },
-    );
-  }
-}
-
-////////////////////
-///Surgery/////////
-///////////////////
-
-class SurgeryTextField extends StatefulWidget {
-  final int index;
-  SurgeryTextField(this.index);
-  @override
-  _SurgeryTextFieldState createState() => _SurgeryTextFieldState();
-}
-
-class _SurgeryTextFieldState extends State<SurgeryTextField> {
-  TextEditingController _surgeryNameController;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _surgeryNameController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _surgeryNameController.dispose();
-    // TODO: implement dispose
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      // ignore: non_constant_identifier_names
-      // var _HospitalState;
-      _surgeryNameController.text =
-          _HospitalState.surgeryList[widget.index] ?? '';
-    });
-    //var _HospitalState;
-    return TextFormField(
-      controller:
-          _surgeryNameController, // save text field data in friends list at index
-      // whenever text field value changes
-      onChanged: (v) => _HospitalState.surgeryList[widget.index] = v,
-      decoration:
-          InputDecoration(hintText: 'Add a unique code: Surgery Details\''),
-      validator: (v) {
-        if (v.trim().isEmpty) return 'Please enter something';
-        return null;
-      },
-    );
-  }
-}
-
-////////////////////
-///Test facility////
-///////////////////
-class TestFacilityTextField extends StatefulWidget {
-  final int index;
-  TestFacilityTextField(this.index);
-  @override
-  _TestFacilityTextFieldState createState() => _TestFacilityTextFieldState();
-}
-
-class _TestFacilityTextFieldState extends State<TestFacilityTextField> {
-  TextEditingController _testFacilityNameController;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _testFacilityNameController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _testFacilityNameController.dispose();
-    // TODO: implement dispose
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      // ignore: non_constant_identifier_names
-      //  var _HospitalState;
-      _testFacilityNameController.text =
-          _HospitalState.testFacilityList[widget.index] ?? '';
-    });
-    // var _HospitalState;
-    return TextFormField(
-      controller:
-          _testFacilityNameController, // save text field data in friends list at index
-      // whenever text field value changes
-      onChanged: (v) => _HospitalState.testFacilityList[widget.index] = v,
-      decoration: InputDecoration(
-          hintText: 'Add a unique code: Test Facility Details\''),
-      validator: (v) {
-        if (v.trim().isEmpty) return 'Please enter something';
-        return null;
-      },
-    );
   }
 }
