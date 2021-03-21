@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
-
 class Hospital extends StatefulWidget {
   @override
   _HospitalState createState() => _HospitalState();
@@ -20,7 +19,8 @@ class _HospitalState extends State<Hospital> {
   List<String> surguriesItems = [];
   List<String> testFacilitiesItems = [];
 
-
+  List surguriesList = [];
+  List testFacilitiesList = [];
 
   var locationmsg = " ";
   var latmsg = '';
@@ -143,7 +143,7 @@ class _HospitalState extends State<Hospital> {
 
 //  final String url = "http://139.59.112.145/api/registration/helper/hospital";
 
-  List data =[]; //edited line
+  List data = []; //edited line
   List cityData = [];
   var city;
   var resBody;
@@ -191,7 +191,7 @@ class _HospitalState extends State<Hospital> {
   }
 
   //autoCompleteTextView test
- // var _divisionController = new TextEditingController();
+  // var _divisionController = new TextEditingController();
   // var _cityController = new TextEditingController();
   var uses;
   // for image
@@ -213,7 +213,7 @@ class _HospitalState extends State<Hospital> {
   }
 
   // List<String> data = [];
-  var user, user2, user1;
+  //var user, user2, user1;
 
   fetchDivisons() async {
     final response = await http.get(
@@ -233,8 +233,6 @@ class _HospitalState extends State<Hospital> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -344,7 +342,6 @@ class _HospitalState extends State<Hospital> {
                       color: Colors.blue,
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -402,18 +399,19 @@ class _HospitalState extends State<Hospital> {
                         for (var i = 0;
                             i < snapshot.data.data.services.length;
                             i++) {
-                         // user = snapshot.data.data.services[i];
-                          uses = snapshot.data.data.services[i];
+                          // user = snapshot.data.data.services[i];
+                          serviceList.add(snapshot.data.data.services[i]);
                         }
                         for (var i = 0;
                             i < snapshot.data.data.surguries.length;
                             i++) {
-                          user1 = snapshot.data.data.surguries[i];
+                          surguriesList.add(snapshot.data.data.surguries[i]);
                         }
                         for (var i = 0;
                             i < snapshot.data.data.testFacilities.length;
                             i++) {
-                          user2 = snapshot.data.data.testFacilities[i];
+                          testFacilitiesList
+                              .add(snapshot.data.data.testFacilities[i]);
                         }
 
                         return Column(
@@ -431,10 +429,10 @@ class _HospitalState extends State<Hospital> {
                                       context: context,
                                       buttonText: 'services',
                                       itemList: [
-                                        //user,
-                                        uses.id.toString() +
-                                            ")  " +
-                                            uses.name.toString(),
+                                        for (var i in serviceList)
+                                          i.id.toString() +
+                                              ") " +
+                                              i.name.toString()
                                       ],
                                       questionText: 'Select Your services',
                                       validator: (flavours1) => flavours1
@@ -446,9 +444,10 @@ class _HospitalState extends State<Hospital> {
                                         print(flavours1);
                                         //var items = flavours1.map((e) => e.replaceAll(')', ' '));
                                         servicesItems = flavours1
-                                            .map((e) => e.split(")")[0]).toList();
-                                       // print(items.toString());
-                                      //  servicesItems = items.toList();
+                                            .map((e) => e.split(")")[0])
+                                            .toList();
+                                        // print(items.toString());
+                                        //  servicesItems = items.toList();
                                         // servicesItems = items.toList();
                                         print(servicesItems);
 
@@ -459,10 +458,9 @@ class _HospitalState extends State<Hospital> {
                                       if (_formKeyservices.currentState
                                           .validate()) {
                                         // Invokes the OnSaved Method
-                                       // servicesItems.cast();
+                                        // servicesItems.cast();
 
                                         _formKeyservices.currentState.save();
-
                                       }
                                     },
                                   ),
@@ -480,13 +478,10 @@ class _HospitalState extends State<Hospital> {
                                       context: context,
                                       buttonText: 'surguries',
                                       itemList: [
-
-                                        user1.id.toString() +
-                                            ")  " +
-                                            user1.name.toString(),
-
-
-
+                                        for (var i in surguriesList)
+                                          i.id.toString() +
+                                              ") " +
+                                              i.name.toString()
                                       ],
                                       questionText: 'Select Your surguries',
                                       validator: (flavours2) => flavours2
@@ -495,13 +490,10 @@ class _HospitalState extends State<Hospital> {
                                           ? 'Please select at least one flavor!'
                                           : null,
                                       onSaved: (flavours2) {
-
-
                                         surguriesItems = flavours2
-                                            .map((e) => e.split(")")[0]).toList();
-
-
-
+                                            .map((e) => e.split(")")[0])
+                                            .toList();
+                                        print(surguriesItems);
                                         // Logic to save selected flavours in the database
                                       },
                                     ),
@@ -510,7 +502,6 @@ class _HospitalState extends State<Hospital> {
                                           .validate()) {
                                         // Invokes the OnSaved Method
                                         _formKeySurgeries.currentState.save();
-
                                       }
                                     },
                                   ),
@@ -529,9 +520,10 @@ class _HospitalState extends State<Hospital> {
                                       context: context,
                                       buttonText: 'testFacilities',
                                       itemList: [
-                                        user2.id.toString() +
-                                            ")  " +
-                                            user2.name.toString(),
+                                        for (var i in testFacilitiesList)
+                                          i.id.toString() +
+                                              ") " +
+                                              i.name.toString()
                                       ],
                                       questionText:
                                           'Select Your testFacilities',
@@ -542,10 +534,9 @@ class _HospitalState extends State<Hospital> {
                                           : null,
                                       onSaved: (flavours3) {
                                         testFacilitiesItems = flavours3
-                                            .map((e) => e.split(")")[0]).toList();
-
-
-
+                                            .map((e) => e.split(")")[0])
+                                            .toList();
+                                        print(testFacilitiesItems);
                                         // Logic to save selected flavours in the database
                                       },
                                     ),
@@ -597,8 +588,8 @@ class _HospitalState extends State<Hospital> {
                         //String imageFileName = imageFile.path.split('/').last;
 
                         print("/////////////");
-                      print(testFacilitiesItems);
-                      print(surguriesItems);
+                        print(testFacilitiesItems);
+                        print(surguriesItems);
                         print(servicesItems);
 
                         List<int> imageBytes = imageFile.readAsBytesSync();
