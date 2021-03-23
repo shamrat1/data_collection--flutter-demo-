@@ -19,6 +19,8 @@ class _ClinicState extends State<Clinic> {
   List<String> surguriesItems = [];
   List<String> testFacilitiesItems = [];
 
+  final _notesController = TextEditingController();
+  //dropdown
   List surguriesList = [];
   List testFacilitiesList = [];
 
@@ -575,6 +577,26 @@ class _ClinicState extends State<Clinic> {
                 ),
               ),
             ),
+
+            SizedBox(
+              height: 10,
+            ),
+//notes
+            Container(
+              height: 100,
+              margin: EdgeInsets.only(left: 10, right: 10),
+              child: TextFormField(
+                controller: _notesController,
+                decoration: InputDecoration(
+                    labelText: "Notes",
+                    hintText: 'Give us your feeling of thought',
+                    border: OutlineInputBorder()),
+                maxLines: null,
+                expands: true,
+                keyboardType: TextInputType.multiline,
+              ),
+            ),
+
             //send to server
             Container(
               child: Center(
@@ -610,6 +632,7 @@ class _ClinicState extends State<Clinic> {
                             locationLat: (latmsg),
                             locationLng: (longmsg),
                             branchName: branchName.text,
+                            notes: _notesController.text,
                             receptionPhone: (mobileNo.text));
                       },
                       child: Text("Submit"),

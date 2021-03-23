@@ -26,6 +26,7 @@ class NetWork {
     @required String locationLng,
     @required String branchName,
     @required String receptionPhone,
+   String notes,
   }) async {
     //   var fullUrl = baseUrl + "/registration/hospital/store";
 
@@ -49,6 +50,8 @@ class NetWork {
       'branch_name': branchName,
       'receptionPhone': receptionPhone,
       'image': image,
+      'note': notes
+      
     };
 
     // FormData formData = new FormData.fromMap(data);
@@ -100,9 +103,10 @@ sendDoctorStore({
     @required String divisionId,
     @required String addressLine1,
     String addressLine2,
-     services,
-     surgeries,
-     testFacilities,
+     departmentId,
+     designationId,
+     expertiseId,
+     notes,
     @required image,
     @required String locationLat,
     @required String locationLng,
@@ -122,9 +126,10 @@ sendDoctorStore({
       'division_id': divisionId,
       'address_line_1': addressLine1,
       'address_line_2': addressLine2,
-      'Services': services,
-      'Surgeries': surgeries,
-      'test_facilities': testFacilities,
+      'departmentId': departmentId,
+      'designationId': designationId,
+      'expertiseId': expertiseId,
+      'notes':notes,
       'location_lat': locationLat,
       'location_lng': locationLng,
       'branch_name': branchName,
@@ -186,6 +191,7 @@ sendClinicStore({
     @required String locationLng,
     @required String branchName,
     @required String receptionPhone,
+    String notes
   }) async {
     
 
@@ -209,6 +215,7 @@ sendClinicStore({
       'branch_name': branchName,
       'receptionPhone': receptionPhone,
       'image': image,
+      'note': notes,
     };
 
     // FormData formData = new FormData.fromMap(data);

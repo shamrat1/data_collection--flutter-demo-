@@ -40,6 +40,7 @@ class _DoctorState extends State<Doctor> {
   final branchName = TextEditingController();
   final mobileNo = TextEditingController();
 
+  final _notesController = TextEditingController();
   // var locationLatitude;
   //var locationLongitude;
 
@@ -111,6 +112,8 @@ class _DoctorState extends State<Doctor> {
   }
 
   var departmantItem;
+  var designationItems;
+  var expertiseItems;
   //for camera dialogBox
   Future<void> _showChoiceDialog(BuildContext context) {
     return showDialog(
@@ -217,6 +220,8 @@ class _DoctorState extends State<Doctor> {
 
   List department = [];
   List visitHour = [];
+  List expertises = [];
+  List desginations = [];
 
   fetchDivisons() async {
     final response = await http.get(
@@ -397,7 +402,7 @@ class _DoctorState extends State<Doctor> {
             Container(
               child: TextField(
                 controller: mobileNo,
-                decoration: InputDecoration(hintText: 'Reception No'),
+                decoration: InputDecoration(hintText: 'Phone Number'),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -412,7 +417,9 @@ class _DoctorState extends State<Doctor> {
                       if (snapshot.data == null) {
                         return CupertinoActivityIndicator();
                       } else {
+                        expertises = [];
                         department = [];
+                        desginations = [];
                         for (var i = 0;
                             i < snapshot.data.data.departments.length;
                             i++) {
@@ -421,10 +428,16 @@ class _DoctorState extends State<Doctor> {
                           // print(department);
                         }
                         for (var i = 0;
-                            i < snapshot.data.data.visitHours.length;
+                            i < snapshot.data.data.expertises.length;
                             i++) {
-                          visitHour.add(snapshot.data.data.visitHours[i]);
+                          expertises.add(snapshot.data.data.expertises[i]);
                         }
+                        for (var i = 0;
+                            i < snapshot.data.data.designations.length;
+                            i++) {
+                          desginations.add(snapshot.data.data.designations[i]);
+                        }
+
                         // for (var i = 0;
                         //     i < snapshot.data.data.testFacilities.length;
                         //     i++) {
@@ -433,142 +446,288 @@ class _DoctorState extends State<Doctor> {
                         // print(department);
 
                         return Column(
-                          //mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          //  crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Department"),
-
-                                Container(
-                                    width: 260.0,
-                                    margin: const EdgeInsets.all(30.0),
-                                    child: Column(
-                                      children: [
-                                        new DropdownButton(
-                                          underline: SizedBox(),
-                                          isExpanded: true,
-                                          icon: Icon(Icons.arrow_drop_down),
-                                          hint: Text("  Select department"),
-                                          items: [
-                                            for (var i in department)
-                                              DropdownMenuItem(
-                                                child: Text(i.name.toString()),
-                                                value: i.id.toString(),
-                                              )
-                                          ],
-
-                                          // department.map((item) {
-                                          //   return new DropdownMenuItem(
-                                          //     child: new Text(item['name']),
-                                          //     value: item['id'].toString(),
-                                          //   );
-                                          // }).toList(),
-
-                                          onChanged: (cityVal) {
-                                            // setState(() {
-                                            departmantItem = cityVal;
-                                            //   });
-                                            // print(departmantItem);
-                                          },
-                                          value: departmantItem,
-                                        ),
-                                      ],
-                                    )),
-
-                                //   Container(
-                                //     child: Form(
-                                //       key: _formKeyservices,
-                                //       child: MultiSelectFormFieldForDepartment(
-                                //         context: context,
-                                //         buttonText: 'Department',
-                                //         itemList: [
-                                //           for (var i in department)
-                                //             i.id.toString() +
-                                //                 ") " +
-                                //                 i.name.toString()
-                                //         ],
-
-                                //         // itemList: department.map((item) {
-                                //         //   item.name;
-                                //         // }).toList(),
-
-                                //         questionText: 'Select Your Department',
-                                //         validator: (flavours1) => flavours1
-                                //                     .length ==
-                                //                 0
-                                //             ? 'Please select at least one Department!'
-                                //             : null,
-                                //         onSaved: (flavours1) {
-                                //           //print(flavours1);
-                                //           //var items = flavours1.map((e) => e.replaceAll(')', ' '));
-                                //           departmentItems = flavours1
-                                //               .map((e) => e.split(")")[0])
-                                //               .toList();
-                                //           // print(items.toString());
-                                //           //  departmentItems = items.toList();
-                                //           // departmentItems = items.toList();
-                                //           print(departmentItems);
-
-                                //           // Logic to save selected flavours in the database
-                                //         },
-                                //       ),
-                                //       onChanged: () {
-                                //         if (_formKeyservices.currentState
-                                //             .validate()) {
-                                //           // Invokes the OnSaved Method
-                                //           // departmentItems.cast();
-
-                                //           _formKeyservices.currentState.save();
-                                //         }
-                                //       },
-                                //     ),
-                                //   ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("visitHours"),
-                                Container(
-                                  child: Form(
-                                    key: _formKeySurgeries,
-                                    child: MultiSelectFormFieldForSurgeries(
-                                      context: context,
-                                      buttonText: 'visitHours',
-                                      itemList: [
-                                        for (var i in visitHour)
-                                          i.id.toString() +
-                                              ") " +
-                                              i.days.toString()
-                                      ],
-                                      questionText: 'Select Your surguries',
-                                      validator: (flavours2) => flavours2
-                                                  .length ==
-                                              0
-                                          ? 'Please select at least one flavor!'
-                                          : null,
-                                      onSaved: (flavours2) {
-                                        visitedHoursItems = flavours2
-                                            .map((e) => e.split(")")[0])
-                                            .toList();
-
-                                        // print(visitedHoursItems);
-                                        // Logic to save selected flavours in the database
-                                      },
-                                    ),
-                                    onChanged: () {
-                                      if (_formKeySurgeries.currentState
-                                          .validate()) {
-                                        // Invokes the OnSaved Method
-                                        _formKeySurgeries.currentState.save();
-                                      }
-                                    },
+                            //department
+                            Container(
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                      alignment: Alignment.center,
+                                      child: Text("Department")),
+                                  SizedBox(
+                                    width: 10,
                                   ),
-                                ),
-                              ],
+                                  Container(
+                                      width: MediaQuery.of(context).size.width /
+                                          1.6,
+                                      margin: const EdgeInsets.only(left: 10),
+                                      child: Column(
+                                        children: [
+                                          new DropdownButton(
+                                            underline: SizedBox(),
+                                            isExpanded: true,
+                                            icon: Icon(Icons.arrow_drop_down),
+                                            hint: Text(
+                                              "  Select department",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            items: [
+                                              for (var i in department)
+                                                DropdownMenuItem(
+                                                  child:
+                                                      Text(i.name.toString()),
+                                                  value: i.id.toString(),
+                                                )
+                                            ],
+
+                                            // department.map((item) {
+                                            //   return new DropdownMenuItem(
+                                            //     child: new Text(item['name']),
+                                            //     value: item['id'].toString(),
+                                            //   );
+                                            // }).toList(),
+
+                                            onChanged: (cityVal) {
+                                              // setState(() {
+                                              departmantItem = cityVal;
+                                              //   });
+                                              // print(departmantItem);
+                                            },
+                                            value: departmantItem,
+                                          ),
+                                        ],
+                                      )),
+
+                                  //   Container(
+                                  //     child: Form(
+                                  //       key: _formKeyservices,
+                                  //       child: MultiSelectFormFieldForDepartment(
+                                  //         context: context,
+                                  //         buttonText: 'Department',
+                                  //         itemList: [
+                                  //           for (var i in department)
+                                  //             i.id.toString() +
+                                  //                 ") " +
+                                  //                 i.name.toString()
+                                  //         ],
+
+                                  //         // itemList: department.map((item) {
+                                  //         //   item.name;
+                                  //         // }).toList(),
+
+                                  //         questionText: 'Select Your Department',
+                                  //         validator: (flavours1) => flavours1
+                                  //                     .length ==
+                                  //                 0
+                                  //             ? 'Please select at least one Department!'
+                                  //             : null,
+                                  //         onSaved: (flavours1) {
+                                  //           //print(flavours1);
+                                  //           //var items = flavours1.map((e) => e.replaceAll(')', ' '));
+                                  //           departmentItems = flavours1
+                                  //               .map((e) => e.split(")")[0])
+                                  //               .toList();
+                                  //           // print(items.toString());
+                                  //           //  departmentItems = items.toList();
+                                  //           // departmentItems = items.toList();
+                                  //           print(departmentItems);
+
+                                  //           // Logic to save selected flavours in the database
+                                  //         },
+                                  //       ),
+                                  //       onChanged: () {
+                                  //         if (_formKeyservices.currentState
+                                  //             .validate()) {
+                                  //           // Invokes the OnSaved Method
+                                  //           // departmentItems.cast();
+
+                                  //           _formKeyservices.currentState.save();
+                                  //         }
+                                  //       },
+                                  //     ),
+                                  //   ),
+                                ],
+                              ),
                             ),
+//desination
+                            Container(
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Designations"),
+                                  SizedBox(width: 10),
+                                  Container(
+                                      width: MediaQuery.of(context).size.width /
+                                          1.6,
+                                      margin: const EdgeInsets.only(left: 10),
+                                      child: Column(
+                                        children: [
+                                          new DropdownButton(
+                                            underline: SizedBox(),
+                                            isExpanded: true,
+                                            icon: Icon(Icons.arrow_drop_down),
+                                            hint: Text(
+                                              "  Select designations",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            items: [
+                                              for (var i in desginations)
+                                                DropdownMenuItem(
+                                                  child:
+                                                      Text(i.name.toString()),
+                                                  value: i.id.toString(),
+                                                )
+                                            ],
+                                            onChanged: (cityVal) {
+                                              // setState(() {
+                                              designationItems = cityVal;
+                                              //   });
+                                              // print(departmantItem);
+                                            },
+                                            value: designationItems,
+                                          ),
+                                        ],
+                                      )),
+
+                                  //   Container(
+                                  //     child: Form(
+                                  //       key: _formKeyservices,
+                                  //       child: MultiSelectFormFieldForDepartment(
+                                  //         context: context,
+                                  //         buttonText: 'Department',
+                                  //         itemList: [
+                                  //           for (var i in department)
+                                  //             i.id.toString() +
+                                  //                 ") " +
+                                  //                 i.name.toString()
+                                  //         ],
+                                  // itemList: department.map((item) {
+                                  //   item.name;
+                                  // }).toList(),
+                                  //         questionText: 'Select Your Department',
+                                  //         validator: (flavours1) => flavours1
+                                  //                     .length ==
+                                  //                 0
+                                  //             ? 'Please select at least one Department!'
+                                  //             : null,
+                                  //         onSaved: (flavours1) {
+                                  //print(flavours1);
+                                  //var items = flavours1.map((e) => e.replaceAll(')', ' '));
+                                  //           departmentItems = flavours1
+                                  //               .map((e) => e.split(")")[0])
+                                  //               .toList();
+                                  // print(items.toString());
+                                  //  departmentItems = items.toList();
+                                  // departmentItems = items.toList();
+                                  //           print(departmentItems);
+                                  // Logic to save selected flavours in the database
+                                  //         },
+                                  //       ),
+                                  //       onChanged: () {
+                                  //         if (_formKeyservices.currentState
+                                  //             .validate()) {
+                                  // Invokes the OnSaved Method
+                                  // departmentItems.cast();
+                                  //           _formKeyservices.currentState.save();
+                                  //         }
+                                  //       },
+                                  //     ),
+                                  //   ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Expertises"),
+                                  SizedBox(width: 10),
+                                  Container(
+                                      width: MediaQuery.of(context).size.width /
+                                          1.6,
+                                      margin: const EdgeInsets.only(left: 10),
+                                      child: Column(
+                                        children: [
+                                          new DropdownButton(
+                                            underline: SizedBox(),
+                                            isExpanded: true,
+                                            icon: Icon(Icons.arrow_drop_down),
+                                            hint: Text(
+                                              "  Select expertises",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            items: [
+                                              for (var i in expertises)
+                                                DropdownMenuItem(
+                                                  child:
+                                                      Text(i.name.toString()),
+                                                  value: i.id.toString(),
+                                                )
+                                            ],
+                                            onChanged: (cityVal) {
+                                              // setState(() {
+                                              expertiseItems = cityVal;
+                                              //   });
+                                              // print(departmantItem);
+                                            },
+                                            value: expertiseItems,
+                                          ),
+                                        ],
+                                      )),
+                                ],
+                              ),
+                            ),
+
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //   children: [
+                            //     Text("visitHours"),
+                            //     Container(
+                            //       child: Form(
+                            //         key: _formKeySurgeries,
+                            //         child: MultiSelectFormFieldForSurgeries(
+                            //           context: context,
+                            //           buttonText: 'visitHours',
+                            //           itemList: [
+                            //             for (var i in visitHour)
+                            //               i.id.toString() +
+                            //                   ") " +
+                            //                   i.days.toString()
+                            //           ],
+                            //           questionText: 'Select Your surguries',
+                            //           validator: (flavours2) => flavours2
+                            //                       .length ==
+                            //                   0
+                            //               ? 'Please select at least one flavor!'
+                            //               : null,
+                            //           onSaved: (flavours2) {
+                            //             visitedHoursItems = flavours2
+                            //                 .map((e) => e.split(")")[0])
+                            //                 .toList();
+                            // print(visitedHoursItems);
+                            // Logic to save selected flavours in the database
+                            //           },
+                            //         ),
+                            //         onChanged: () {
+                            //           if (_formKeySurgeries.currentState
+                            //               .validate()) {
+                            //             // Invokes the OnSaved Method
+                            //             _formKeySurgeries.currentState.save();
+                            //           }
+                            //         },
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
                             // Row(
                             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             //   children: [
@@ -634,6 +793,27 @@ class _DoctorState extends State<Doctor> {
                 ),
               ),
             ),
+
+            SizedBox(
+              height: 10,
+            ),
+            //notes
+
+            Container(
+              height: 100,
+              margin: EdgeInsets.only(left: 10, right: 10),
+              child: TextFormField(
+                controller: _notesController,
+                decoration: InputDecoration(
+                    labelText: "Notes",
+                    hintText: 'Give us your feeling of thought',
+                    border: OutlineInputBorder()),
+                maxLines: null,
+                expands: true,
+                keyboardType: TextInputType.multiline,
+              ),
+            ),
+
             //send to server
             Container(
               child: Center(
@@ -659,15 +839,18 @@ class _DoctorState extends State<Doctor> {
                             nameBangla: hospitalNameBang.text,
                             cityId: _citySelection,
                             divisionId: _mySelection,
-                            services: departmentItems,
-                            surgeries: visitedHoursItems,
-                            testFacilities: testFacilitiesItems,
+                            departmentId: departmentItems,
+                            //  surgeries: visitedHoursItems,
+                            expertiseId: expertiseItems,
+                            //testFacilities: testFacilitiesItems,
                             addressLine1: addressInEng.text,
                             addressLine2: addressInBng.text,
                             image: baseimage,
                             locationLat: (latmsg),
                             locationLng: (longmsg),
                             branchName: branchName.text,
+                            notes: _notesController.text,
+                            designationId: designationItems,
                             receptionPhone: (mobileNo.text));
                       },
                       child: Text("Submit"),
