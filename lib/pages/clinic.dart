@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_collection/helperClass/testFacilityField.dart';
 import 'package:data_collection/model/Hospitalmodel.dart';
 import 'package:data_collection/postData/api.dart';
@@ -58,7 +59,7 @@ class _ClinicState extends State<Clinic> {
   int divId;
   int latitudemessage;
   int longitudemessage;
-
+  var baseimage;
   int surveyquestionnum = 1;
   int surveyquestiontotal = 1;
 
@@ -160,9 +161,9 @@ class _ClinicState extends State<Clinic> {
     resBody = json.decode(res.body);
 
     var user = resBody['data']['divisions'];
-    setState(() {
-      data = user;
-    });
+    //  setState(() {
+    data = user;
+    // });
     return "Sucess";
   }
 
@@ -616,24 +617,9 @@ class _ClinicState extends State<Clinic> {
                         print(servicesItems);
 
                         List<int> imageBytes = imageFile.readAsBytesSync();
-                        String baseimage = base64Encode(imageBytes);
-                        NetWork().sendClinicStore(
-                            context: context,
-                            name: hospitalNameEng.text,
-                            nameBangla: hospitalNameBang.text,
-                            cityId: _citySelection,
-                            divisionId: _mySelection,
-                            services: servicesItems,
-                            surgeries: surguriesItems,
-                            testFacilities: testFacilitiesItems,
-                            addressLine1: addressInEng.text,
-                            addressLine2: addressInBng.text,
-                            image: baseimage,
-                            locationLat: (latmsg),
-                            locationLng: (longmsg),
-                            branchName: branchName.text,
-                            notes: _notesController.text,
-                            receptionPhone: (mobileNo.text));
+                        baseimage = base64Encode(imageBytes);
+
+                        _sendClinic();
                       },
                       child: Text("Submit"),
                     ),
@@ -645,6 +631,59 @@ class _ClinicState extends State<Clinic> {
         ),
       ),
     );
+  }
+
+  _sendClinic() async {
+    var data = {
+      'name': hospitalNameEng.text,
+      'name_bn': hospitalNameBang.text,
+      'city_id': _citySelection.toString(),
+      'division_id': _mySelection.toString(),
+      'address_line_1': addressInEng.text,
+      'address_line_2': addressInBng.text,
+      'services': servicesItems,
+      'surgeries': surguriesItems,
+      'test_facilities': testFacilitiesItems,
+      'note': _notesController.text,
+      'location_lat': latmsg,
+      'location_lng': longmsg,
+      'branch_name': branchName.text,
+      'reception_phone': mobileNo.text,
+      'image': baseimage,
+    };
+
+    var response = await NetWork().sendClinicStore(data: data);
+
+    String showMessage;
+
+    var body = json.decode(response.body);
+    if (response.statusCode == 200) {
+      showMessage = body['msg'];
+      print(data);
+      print(body);
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.INFO,
+        animType: AnimType.BOTTOMSLIDE,
+        title: 'Dialog Title',
+        desc: showMessage.toString(),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {},
+      )..show();
+    } else {
+      print(body);
+      print(data);
+      showMessage = body['msg'];
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.INFO,
+        animType: AnimType.BOTTOMSLIDE,
+        title: 'Dialog Title',
+        desc: showMessage.toString(),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {},
+      )..show();
+    }
   }
 
   //gallery

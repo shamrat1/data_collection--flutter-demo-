@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:data_collection/helperClass/testFacilityField.dart';
-import 'package:data_collection/model/doctorModel.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_collection/postData/api.dart';
+import 'package:data_collection/model/doctorModel.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class _DoctorState extends State<Doctor> {
   List<String> departmentItems = [];
   List<String> visitedHoursItems = [];
   List<String> testFacilitiesItems = [];
-
+  var baseimage;
   var locationmsg = " ";
   var latmsg = '';
   var longmsg = '';
@@ -96,8 +97,8 @@ class _DoctorState extends State<Doctor> {
   }
 
   void getCurrentLocation() async {
-    // var position = await Geolocator.getCurrentPosition(
-    //     desiredAccuracy: LocationAccuracy.high);
+    var position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     var lastPosition = await Geolocator.getLastKnownPosition();
     //currentlat = lastPosition.latitude;
     //currentlong = lastPosition.longitude;
@@ -782,7 +783,7 @@ class _DoctorState extends State<Doctor> {
               child: Center(
                 child: Column(
                   children: <Widget>[
-                    TextButton(
+                    ElevatedButton(
                       onPressed: () {
                         _showChoiceDialog(context);
                       },
@@ -832,26 +833,9 @@ class _DoctorState extends State<Doctor> {
                         // print(departmentItems);
 
                         List<int> imageBytes = imageFile.readAsBytesSync();
-                        String baseimage = base64Encode(imageBytes);
-                        NetWork().sendDoctorStore(
-                            context: context,
-                            name: hospitalNameEng.text,
-                            nameBangla: hospitalNameBang.text,
-                            cityId: _citySelection,
-                            divisionId: _mySelection,
-                            departmentId: departmentItems,
-                            //  surgeries: visitedHoursItems,
-                            expertiseId: expertiseItems,
-                            //testFacilities: testFacilitiesItems,
-                            addressLine1: addressInEng.text,
-                            addressLine2: addressInBng.text,
-                            image: baseimage,
-                            locationLat: (latmsg),
-                            locationLng: (longmsg),
-                            branchName: branchName.text,
-                            notes: _notesController.text,
-                            designationId: designationItems,
-                            receptionPhone: (mobileNo.text));
+                        baseimage = base64Encode(imageBytes);
+
+                        _sendDoctor();
                       },
                       child: Text("Submit"),
                     ),
@@ -863,6 +847,61 @@ class _DoctorState extends State<Doctor> {
         ),
       ),
     );
+  }
+
+  //testFacilities: testFacilitiesItems,
+
+  _sendDoctor() async {
+    var data = {
+      'name': hospitalNameEng.text,
+      'name_bn': hospitalNameBang.text,
+      'city_id': _citySelection.toString(),
+      'division_id': _mySelection.toString(),
+      'address_line_1': addressInEng.text,
+      'address_line_2': addressInBng.text,
+      'department_id': departmentItems,
+      'designation_id': designationItems,
+      'expertise_id': expertiseItems,
+      'note': _notesController.text,
+      'location_lat': latmsg,
+      'location_lng': longmsg,
+      'branch_name': branchName.text,
+      'reception_phone': mobileNo.text,
+      'image': baseimage,
+    };
+
+    var response = await NetWork().sendDoctorStore(data: data);
+
+    String showMessage;
+
+    var body = json.decode(response.body);
+    if (response.statusCode == 200) {
+      showMessage = body['msg'];
+      print(data);
+      print(body);
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.INFO,
+        animType: AnimType.BOTTOMSLIDE,
+        title: 'Dialog Title',
+        desc: showMessage.toString(),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {},
+      )..show();
+    } else {
+      print(body);
+      print(data);
+      showMessage = body['msg'];
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.INFO,
+        animType: AnimType.BOTTOMSLIDE,
+        title: 'Dialog Title',
+        desc: showMessage.toString(),
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {},
+      )..show();
+    }
   }
 
   //gallery
