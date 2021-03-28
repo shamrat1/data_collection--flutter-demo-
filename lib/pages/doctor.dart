@@ -44,7 +44,16 @@ class _DoctorState extends State<Doctor> {
   final _notesController = TextEditingController();
   // var locationLatitude;
   //var locationLongitude;
+ ///
 
+  var errorMessageHospitalEnglish;
+  var errorMessageHospitalBangla;
+  var errorMessageAddressEnglish;
+  var errorMessageAddressBangla;
+  var errorMessageBranchName;
+  var errorMessagePhone;
+
+  ///
   // final _formKeytest = GlobalKey<FormState>();
   //final _formKeyservices = GlobalKey<FormState>();
 
@@ -254,7 +263,9 @@ class _DoctorState extends State<Doctor> {
               child: TextField(
                 controller: hospitalNameEng,
                 decoration:
-                    InputDecoration(hintText: 'Hospital Name In English'),
+                    InputDecoration(hintText: 'Hospital Name In English',
+                    errorText: errorMessageHospitalEnglish
+                    ),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -263,7 +274,8 @@ class _DoctorState extends State<Doctor> {
               child: TextField(
                 controller: hospitalNameBang,
                 decoration:
-                    InputDecoration(hintText: 'Hospital Name In Bangla'),
+                    InputDecoration(hintText: 'Hospital Name In Bangla',
+                    errorText: errorMessageHospitalBangla),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -335,7 +347,8 @@ class _DoctorState extends State<Doctor> {
             Container(
               child: TextField(
                 controller: addressInEng,
-                decoration: InputDecoration(hintText: 'Address In English'),
+                decoration: InputDecoration(hintText: 'Address In English',
+                errorText: errorMessageAddressEnglish),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -343,7 +356,8 @@ class _DoctorState extends State<Doctor> {
             Container(
               child: TextField(
                 controller: addressInBng,
-                decoration: InputDecoration(hintText: 'Address In Bangla'),
+                decoration: InputDecoration(hintText: 'Address In Bangla',
+                errorText: errorMessageAddressBangla)
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -395,7 +409,8 @@ class _DoctorState extends State<Doctor> {
             Container(
               child: TextField(
                 controller: branchName,
-                decoration: InputDecoration(hintText: 'Branch Name'),
+                decoration: InputDecoration(hintText: 'Branch Name',
+                errorText: errorMessageBranchName),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -403,7 +418,8 @@ class _DoctorState extends State<Doctor> {
             Container(
               child: TextField(
                 controller: mobileNo,
-                decoration: InputDecoration(hintText: 'Phone Number'),
+                decoration: InputDecoration(hintText: 'Phone Number',
+                errorText: errorMessagePhone),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -889,8 +905,14 @@ class _DoctorState extends State<Doctor> {
         btnOkOnPress: () {},
       )..show();
     } else {
-      print(body);
-      print(data);
+      errorMessageHospitalEnglish = body['data']['name'].toString();
+       errorMessageHospitalBangla = body['data']['name_bn'].toString();
+      // print(errorMessageHospitalEnglish);
+
+      errorMessageAddressEnglish = body['data']['address_line_1'].toString();
+    errorMessageAddressBangla = body['data']['address_line_2'].toString();
+      errorMessageBranchName = body['data']['branch_name'].toString();
+       errorMessagePhone = body['data']['reception_phone'].toString();
       showMessage = body['msg'];
       AwesomeDialog(
         context: context,

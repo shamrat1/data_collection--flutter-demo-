@@ -47,6 +47,17 @@ class _ClinicState extends State<Clinic> {
   // var locationLatitude;
   //var locationLongitude;
 
+   ///
+
+  var errorMessageHospitalEnglish;
+  var errorMessageHospitalBangla;
+  var errorMessageAddressEnglish;
+  var errorMessageAddressBangla;
+  var errorMessageBranchName;
+  var errorMessagePhone;
+
+  ///
+
   final _formKeytest = GlobalKey<FormState>();
   final _formKeyservices = GlobalKey<FormState>();
 
@@ -99,8 +110,8 @@ class _ClinicState extends State<Clinic> {
   }
 
   void getCurrentLocation() async {
-    // var position = await Geolocator.getCurrentPosition(
-    //     desiredAccuracy: LocationAccuracy.high);
+     var position = await Geolocator.getCurrentPosition(
+         desiredAccuracy: LocationAccuracy.high);
     var lastPosition = await Geolocator.getLastKnownPosition();
     //currentlat = lastPosition.latitude;
     //currentlong = lastPosition.longitude;
@@ -246,7 +257,8 @@ class _ClinicState extends State<Clinic> {
               child: TextField(
                 controller: hospitalNameEng,
                 decoration:
-                    InputDecoration(hintText: 'Hospital Name In English'),
+                    InputDecoration(hintText: 'Hospital Name In English',
+                    errorText: errorMessageHospitalEnglish),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -255,7 +267,10 @@ class _ClinicState extends State<Clinic> {
               child: TextField(
                 controller: hospitalNameBang,
                 decoration:
-                    InputDecoration(hintText: 'Hospital Name In Bangla'),
+                    InputDecoration(hintText: 'Hospital Name In Bangla',
+                    errorText: errorMessageHospitalBangla
+                    
+                    ),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -316,7 +331,9 @@ class _ClinicState extends State<Clinic> {
             Container(
               child: TextField(
                 controller: addressInEng,
-                decoration: InputDecoration(hintText: 'Address In English'),
+                decoration: InputDecoration(hintText: 'Address In English',
+                errorText: errorMessageAddressEnglish
+                ),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -324,7 +341,9 @@ class _ClinicState extends State<Clinic> {
             Container(
               child: TextField(
                 controller: addressInBng,
-                decoration: InputDecoration(hintText: 'Address In Bangla'),
+                decoration: InputDecoration(hintText: 'Address In Bangla',
+                
+                errorText: errorMessageAddressBangla),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -376,7 +395,9 @@ class _ClinicState extends State<Clinic> {
             Container(
               child: TextField(
                 controller: branchName,
-                decoration: InputDecoration(hintText: 'Branch Name'),
+                decoration: InputDecoration(hintText: 'Branch Name',
+                errorText: errorMessageBranchName
+                ),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -384,7 +405,8 @@ class _ClinicState extends State<Clinic> {
             Container(
               child: TextField(
                 controller: mobileNo,
-                decoration: InputDecoration(hintText: 'Reception No'),
+                decoration: InputDecoration(hintText: 'Reception No',
+                errorText: errorMessagePhone),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -671,8 +693,14 @@ class _ClinicState extends State<Clinic> {
         btnOkOnPress: () {},
       )..show();
     } else {
-      print(body);
-      print(data);
+      errorMessageHospitalEnglish = body['data']['name'].toString();
+       errorMessageHospitalBangla = body['data']['name_bn'].toString();
+      // print(errorMessageHospitalEnglish);
+
+      errorMessageAddressEnglish = body['data']['address_line_1'].toString();
+    errorMessageAddressBangla = body['data']['address_line_2'].toString();
+      errorMessageBranchName = body['data']['branch_name'].toString();
+       errorMessagePhone = body['data']['reception_phone'].toString();
       showMessage = body['msg'];
       AwesomeDialog(
         context: context,

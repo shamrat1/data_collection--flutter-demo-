@@ -32,6 +32,17 @@ class _HospitalState extends State<Hospital> {
 
   bool loading = true;
 
+  ///
+
+  var errorMessageHospitalEnglish;
+  var errorMessageHospitalBangla;
+  var errorMessageAddressEnglish;
+  var errorMessageAddressBangla;
+  var errorMessageBranchName;
+  var errorMessagePhone;
+
+  ///
+
   final hospitalNameEng = TextEditingController();
   final hospitalNameBang = TextEditingController();
 
@@ -99,8 +110,8 @@ class _HospitalState extends State<Hospital> {
   }
 
   void getCurrentLocation() async {
-    // var position = await Geolocator.getCurrentPosition(
-    //     desiredAccuracy: LocationAccuracy.high);
+    var position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     var lastPosition = await Geolocator.getLastKnownPosition();
     //currentlat = lastPosition.latitude;
     //currentlong = lastPosition.longitude;
@@ -245,8 +256,10 @@ class _HospitalState extends State<Hospital> {
               //margin: const EdgeInsets.only(bottom:5.0),
               child: TextField(
                 controller: hospitalNameEng,
-                decoration:
-                    InputDecoration(hintText: 'Hospital Name In English'),
+                decoration: InputDecoration(
+                  hintText: 'Hospital Name In English',
+                  errorText: errorMessageHospitalEnglish,
+                ),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -254,8 +267,10 @@ class _HospitalState extends State<Hospital> {
             Container(
               child: TextField(
                 controller: hospitalNameBang,
-                decoration:
-                    InputDecoration(hintText: 'Hospital Name In Bangla'),
+                decoration: InputDecoration(
+                  hintText: 'Hospital Name In Bangla',
+                  errorText: errorMessageHospitalBangla,
+                ),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -316,7 +331,9 @@ class _HospitalState extends State<Hospital> {
             Container(
               child: TextField(
                 controller: addressInEng,
-                decoration: InputDecoration(hintText: 'Address In English'),
+                decoration: InputDecoration(hintText: 'Address In English',
+                errorText: errorMessageAddressEnglish,
+                ),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -324,7 +341,8 @@ class _HospitalState extends State<Hospital> {
             Container(
               child: TextField(
                 controller: addressInBng,
-                decoration: InputDecoration(hintText: 'Address In Bangla'),
+                decoration: InputDecoration(hintText: 'Address In Bangla',
+                errorText: errorMessageAddressBangla,)
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -376,7 +394,9 @@ class _HospitalState extends State<Hospital> {
             Container(
               child: TextField(
                 controller: branchName,
-                decoration: InputDecoration(hintText: 'Branch Name'),
+                decoration: InputDecoration(hintText: 'Branch Name',
+                errorText: errorMessageBranchName
+                ),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -384,7 +404,10 @@ class _HospitalState extends State<Hospital> {
             Container(
               child: TextField(
                 controller: mobileNo,
-                decoration: InputDecoration(hintText: 'Reception No'),
+                decoration: InputDecoration(hintText: 'Reception No',
+                errorText: errorMessagePhone
+                
+                ),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -656,8 +679,12 @@ class _HospitalState extends State<Hospital> {
     String showMessage;
 
     var body = json.decode(response.body);
+    print(response.statusCode);
     if (response.statusCode == 200) {
       showMessage = body['msg'];
+
+      // errorMessageHospitalEnglish = body['data']['name'].toString();
+      // print(errorMessageHospitalEnglish);
       print(data);
       print(body);
       AwesomeDialog(
@@ -670,9 +697,18 @@ class _HospitalState extends State<Hospital> {
         btnOkOnPress: () {},
       )..show();
     } else {
+        errorMessageHospitalEnglish = body['data']['name'].toString();
+       errorMessageHospitalBangla = body['data']['name_bn'].toString();
+      // print(errorMessageHospitalEnglish);
+
+      errorMessageAddressEnglish = body['data']['address_line_1'].toString();
+    errorMessageAddressBangla = body['data']['address_line_2'].toString();
+      errorMessageBranchName = body['data']['branch_name'].toString();
+       errorMessagePhone = body['data']['reception_phone'].toString();
+
+      showMessage = body['msg'];
       print(body);
       print(data);
-      showMessage = body['msg'];
       AwesomeDialog(
         context: context,
         dialogType: DialogType.INFO,
