@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../constant.dart';
+
 class Clinic extends StatefulWidget {
   @override
   _ClinicState createState() => _ClinicState();
@@ -443,139 +445,148 @@ class _ClinicState extends State<Clinic> {
                           //mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("services"),
-                                Container(
-                                  child: Form(
-                                    key: _formKeyservices,
-                                    child: MultiSelectFormFieldForServies(
-                                      context: context,
-                                      buttonText: 'services',
-                                      itemList: [
-                                        for (var i in serviceList)
-                                          i.id.toString() +
-                                              ") " +
-                                              i.name.toString()
-                                      ],
-                                      questionText: 'Select Your services',
-                                      validator: (flavours1) => flavours1
-                                                  .length ==
-                                              0
-                                          ? 'Please select at least one services!'
-                                          : null,
-                                      onSaved: (flavours1) {
-                                        print(flavours1);
-                                        //var items = flavours1.map((e) => e.replaceAll(')', ' '));
-                                        servicesItems = flavours1
-                                            .map((e) => e.split(")")[0])
-                                            .toList();
+                            Container(
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Services", style: textStyle),
+                                  Container(
+                                    child: Form(
+                                      key: _formKeyservices,
+                                      child: MultiSelectFormFieldForServies(
+                                        context: context,
+                                        buttonText: 'Services',
+                                        itemList: [
+                                          for (var i in serviceList)
+                                            i.id.toString() +
+                                                ") " +
+                                                i.name.toString()
+                                        ],
+                                        questionText: 'Select Your services',
+                                        validator: (flavours1) => flavours1
+                                                    .length ==
+                                                0
+                                            ? 'Please select at least one services!'
+                                            : null,
+                                        onSaved: (flavours1) {
+                                          print(flavours1);
+                                          //var items = flavours1.map((e) => e.replaceAll(')', ' '));
+                                          servicesItems = flavours1
+                                              .map((e) => e.split(")")[0])
+                                              .toList();
 
-                                        print(servicesItems);
+                                          print(servicesItems);
 
-                                        // Logic to save selected flavours in the database
+                                          // Logic to save selected flavours in the database
+                                        },
+                                      ),
+                                      onChanged: () {
+                                        if (_formKeyservices.currentState
+                                            .validate()) {
+                                          // Invokes the OnSaved Method
+                                          // servicesItems.cast();
+
+                                          _formKeyservices.currentState.save();
+                                        }
                                       },
                                     ),
-                                    onChanged: () {
-                                      if (_formKeyservices.currentState
-                                          .validate()) {
-                                        // Invokes the OnSaved Method
-                                        // servicesItems.cast();
-
-                                        _formKeyservices.currentState.save();
-                                      }
-                                    },
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("surguries"),
-                                Container(
-                                  child: Form(
-                                    key: _formKeySurgeries,
-                                    child: MultiSelectFormFieldForSurgeries(
-                                      context: context,
-                                      buttonText: 'surguries',
-                                      itemList: [
-                                        for (var i in surguriesList)
-                                          i.id.toString() +
-                                              ") " +
-                                              i.name.toString()
-                                      ],
-                                      questionText: 'Select Your surguries',
-                                      validator: (flavours2) => flavours2
-                                                  .length ==
-                                              0
-                                          ? 'Please select at least one flavor!'
-                                          : null,
-                                      onSaved: (flavours2) {
-                                        surguriesItems = flavours2
-                                            .map((e) => e.split(")")[0])
-                                            .toList();
+                            Container(
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Surguries", style: textStyle),
+                                  Container(
+                                    child: Form(
+                                      key: _formKeySurgeries,
+                                      child: MultiSelectFormFieldForSurgeries(
+                                        context: context,
+                                        buttonText: 'Surguries',
+                                        itemList: [
+                                          for (var i in surguriesList)
+                                            i.id.toString() +
+                                                ") " +
+                                                i.name.toString()
+                                        ],
+                                        questionText: 'Select Your surguries',
+                                        validator: (flavours2) => flavours2
+                                                    .length ==
+                                                0
+                                            ? 'Please select at least one flavor!'
+                                            : null,
+                                        onSaved: (flavours2) {
+                                          surguriesItems = flavours2
+                                              .map((e) => e.split(")")[0])
+                                              .toList();
 
-                                        print(surguriesItems);
-                                        // Logic to save selected flavours in the database
+                                          print(surguriesItems);
+                                          // Logic to save selected flavours in the database
+                                        },
+                                      ),
+                                      onChanged: () {
+                                        if (_formKeySurgeries.currentState
+                                            .validate()) {
+                                          // Invokes the OnSaved Method
+                                          _formKeySurgeries.currentState.save();
+                                        }
                                       },
                                     ),
-                                    onChanged: () {
-                                      if (_formKeySurgeries.currentState
-                                          .validate()) {
-                                        // Invokes the OnSaved Method
-                                        _formKeySurgeries.currentState.save();
-                                      }
-                                    },
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("testFacilities"),
-                                Container(
-                                  child: Form(
-                                    key: _formKeytest,
-                                    child:
-                                        MultiSelectFormFieldForTestFacilities(
-                                      context: context,
-                                      buttonText: 'testFacilities',
-                                      itemList: [
-                                        for (var i in testFacilitiesList)
-                                          i.id.toString() +
-                                              ") " +
-                                              i.name.toString()
-                                      ],
-                                      questionText:
-                                          'Select Your testFacilities',
-                                      validator: (flavours3) => flavours3
-                                                  .length ==
-                                              0
-                                          ? 'Please select at least one testFacilities!'
-                                          : null,
-                                      onSaved: (flavours3) {
-                                        testFacilitiesItems = flavours3
-                                            .map((e) => e.split(")")[0])
-                                            .toList();
+                            Container(
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Test Facilities", style: textStyle),
+                                  Container(
+                                    child: Form(
+                                      key: _formKeytest,
+                                      child:
+                                          MultiSelectFormFieldForTestFacilities(
+                                        context: context,
+                                        buttonText: 'Test Facilities',
+                                        itemList: [
+                                          for (var i in testFacilitiesList)
+                                            i.id.toString() +
+                                                ") " +
+                                                i.name.toString()
+                                        ],
+                                        questionText:
+                                            'Select Your testFacilities',
+                                        validator: (flavours3) => flavours3
+                                                    .length ==
+                                                0
+                                            ? 'Please select at least one testFacilities!'
+                                            : null,
+                                        onSaved: (flavours3) {
+                                          testFacilitiesItems = flavours3
+                                              .map((e) => e.split(")")[0])
+                                              .toList();
 
-                                        print(testFacilitiesItems);
+                                          print(testFacilitiesItems);
 
-                                        // Logic to save selected flavours in the database
+                                          // Logic to save selected flavours in the database
+                                        },
+                                      ),
+                                      onChanged: () {
+                                        if (_formKeytest.currentState
+                                            .validate()) {
+                                          // Invokes the OnSaved Method
+                                          _formKeytest.currentState.save();
+                                        }
                                       },
                                     ),
-                                    onChanged: () {
-                                      if (_formKeytest.currentState
-                                          .validate()) {
-                                        // Invokes the OnSaved Method
-                                        _formKeytest.currentState.save();
-                                      }
-                                    },
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         );
