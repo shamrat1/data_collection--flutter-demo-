@@ -30,7 +30,7 @@ class _DoctorState extends State<Doctor> {
   File imageFile;
 
   bool loading = true;
-
+  var response;
   final hospitalNameEng = TextEditingController();
   final hospitalNameBang = TextEditingController();
   //dropdown
@@ -38,19 +38,19 @@ class _DoctorState extends State<Doctor> {
   var _citySelection; //city
   final addressInEng = TextEditingController();
   final addressInBng = TextEditingController();
-  final branchName = TextEditingController();
+  final bmdcCode = TextEditingController();
   final mobileNo = TextEditingController();
 
   final _notesController = TextEditingController();
   // var locationLatitude;
   //var locationLongitude;
- ///
+  ///
 
   var errorMessageHospitalEnglish;
   var errorMessageHospitalBangla;
   var errorMessageAddressEnglish;
   var errorMessageAddressBangla;
-  var errorMessageBranchName;
+  var errorMessageBmdcCode;
   var errorMessagePhone;
 
   ///
@@ -169,10 +169,11 @@ class _DoctorState extends State<Doctor> {
   Future<String> getSWData() async {
     var res = await http.get(url, headers: {"Accept": "application/json"});
     resBody = json.decode(res.body);
-    // print(resBody);
+    print(resBody);
     var user = resBody['data']['divisions'];
     setState(() {
       data = user;
+      response = new DoctorHelper.fromJson(resBody);
     });
     return "Sucess";
   }
@@ -262,10 +263,8 @@ class _DoctorState extends State<Doctor> {
               //margin: const EdgeInsets.only(bottom:5.0),
               child: TextField(
                 controller: hospitalNameEng,
-                decoration:
-                    InputDecoration(hintText: 'Hospital Name In English',
-                    errorText: errorMessageHospitalEnglish
-                    ),
+                decoration: InputDecoration(
+                    hintText: 'Name', errorText: errorMessageHospitalEnglish),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -273,8 +272,8 @@ class _DoctorState extends State<Doctor> {
             Container(
               child: TextField(
                 controller: hospitalNameBang,
-                decoration:
-                    InputDecoration(hintText: 'Hospital Name In Bangla',
+                decoration: InputDecoration(
+                    hintText: 'Name (BN)',
                     errorText: errorMessageHospitalBangla),
               ),
               padding: EdgeInsets.all(10.0),
@@ -289,7 +288,7 @@ class _DoctorState extends State<Doctor> {
                       underline: SizedBox(),
                       isExpanded: true,
                       icon: Icon(Icons.arrow_drop_down),
-                      hint: Text("  $divisiondropdown"),
+                      hint: Text(divisiondropdown),
                       items: data.asMap().entries.map((item) {
                         return new DropdownMenuItem(
                           child: new Text(item.value['name']),
@@ -298,6 +297,7 @@ class _DoctorState extends State<Doctor> {
                       }).toList(),
                       onChanged: (newVal) {
                         var item = data.asMap().values.elementAt(newVal);
+                        divisiondropdown = item['name'].toString();
                         // var selectedCities = data.map((item) {
                         //   print(item['cities']);
 
@@ -347,18 +347,19 @@ class _DoctorState extends State<Doctor> {
             Container(
               child: TextField(
                 controller: addressInEng,
-                decoration: InputDecoration(hintText: 'Address In English',
-                errorText: errorMessageAddressEnglish),
+                decoration: InputDecoration(
+                    hintText: 'Address line 1',
+                    errorText: errorMessageAddressEnglish),
               ),
               padding: EdgeInsets.all(10.0),
             ),
             //address
             Container(
               child: TextField(
-                controller: addressInBng,
-                decoration: InputDecoration(hintText: 'Address In Bangla',
-                errorText: errorMessageAddressBangla)
-              ),
+                  controller: addressInBng,
+                  decoration: InputDecoration(
+                      hintText: 'Address Line 2',
+                      errorText: errorMessageAddressBangla)),
               padding: EdgeInsets.all(10.0),
             ),
             //Location
@@ -405,12 +406,12 @@ class _DoctorState extends State<Doctor> {
                 ],
               ),
             ),
-            //branch name
+            //BMDC code
             Container(
               child: TextField(
-                controller: branchName,
-                decoration: InputDecoration(hintText: 'Branch Name',
-                errorText: errorMessageBranchName),
+                controller: bmdcCode,
+                decoration: InputDecoration(
+                    hintText: 'BMDC Code', errorText: errorMessageBmdcCode),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -418,8 +419,8 @@ class _DoctorState extends State<Doctor> {
             Container(
               child: TextField(
                 controller: mobileNo,
-                decoration: InputDecoration(hintText: 'Phone Number',
-                errorText: errorMessagePhone),
+                decoration: InputDecoration(
+                    hintText: 'Phone Number', errorText: errorMessagePhone),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -429,7 +430,7 @@ class _DoctorState extends State<Doctor> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 FutureBuilder(
-                    future: fetchDivisons(),
+                    future: response,
                     builder: (context, snapshot) {
                       if (snapshot.data == null) {
                         return CupertinoActivityIndicator();
@@ -454,6 +455,11 @@ class _DoctorState extends State<Doctor> {
                             i++) {
                           desginations.add(snapshot.data.data.designations[i]);
                         }
+                        // print(expertises);
+                        // print("__-------__");
+                        // print(department);
+                        // print("--_____--");
+                        // print(desginations);
 
                         // for (var i = 0;
                         //     i < snapshot.data.data.testFacilities.length;
@@ -685,9 +691,9 @@ class _DoctorState extends State<Doctor> {
                                             items: [
                                               for (var i in expertises)
                                                 DropdownMenuItem(
-                                                  child:
-                                                      Text(i.name.toString()),
-                                                  value: i.id.toString(),
+                                                  child: Text(
+                                                      i['name'].toString()),
+                                                  value: i['id'].toString(),
                                                 )
                                             ],
                                             onChanged: (cityVal) {
@@ -881,7 +887,7 @@ class _DoctorState extends State<Doctor> {
       'note': _notesController.text,
       'location_lat': latmsg,
       'location_lng': longmsg,
-      'branch_name': branchName.text,
+      'bmdc_code': bmdcCode.text,
       'reception_phone': mobileNo.text,
       'image': baseimage,
     };
@@ -906,13 +912,13 @@ class _DoctorState extends State<Doctor> {
       )..show();
     } else {
       errorMessageHospitalEnglish = body['data']['name'].toString();
-       errorMessageHospitalBangla = body['data']['name_bn'].toString();
+      errorMessageHospitalBangla = body['data']['name_bn'].toString();
       // print(errorMessageHospitalEnglish);
 
       errorMessageAddressEnglish = body['data']['address_line_1'].toString();
-    errorMessageAddressBangla = body['data']['address_line_2'].toString();
-      errorMessageBranchName = body['data']['branch_name'].toString();
-       errorMessagePhone = body['data']['reception_phone'].toString();
+      errorMessageAddressBangla = body['data']['address_line_2'].toString();
+      errorMessageBmdcCode = body['data']['bmdc_code'].toString();
+      errorMessagePhone = body['data']['reception_phone'].toString();
       showMessage = body['msg'];
       AwesomeDialog(
         context: context,
