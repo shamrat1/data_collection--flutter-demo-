@@ -2,15 +2,14 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-
 class NetWork {
   Map<String, String> headers = {
     "Content-type": "application/json",
-    'Charset': 'utf-8'
+    'Charset': 'utf-8',
+    'accept': 'application/json'
   };
-  sendHospitalStore({
-  data
-  }) async {
+
+  sendHospitalStore({data}) async {
     //   var fullUrl = baseUrl + "/registration/hospital/store";
 
     var fullUrl = Uri(
@@ -38,10 +37,7 @@ class NetWork {
 
     // FormData formData = new FormData.fromMap(data);
 
-   return
-        await http.post(fullUrl, body: json.encode(data), headers: headers);
-
-   
+    return await http.post(fullUrl, body: json.encode(data), headers: headers);
   }
 
   sendDoctorStore({data}) async {
@@ -50,14 +46,28 @@ class NetWork {
         host: "139.59.112.145",
         path: "/api/registration/doctor/store");
 
-    return
-        await http.post(fullUrl, body: json.encode(data), headers: headers);
-
-    
+    return await http.post(fullUrl, body: json.encode(data), headers: headers);
   }
 
-  sendClinicStore(
-      {data}) async {
+  Future<http.Response> getDivision() async {
+    var fullUrl = Uri(
+        scheme: "http",
+        host: "139.59.112.145",
+        path: "/api/helper/division");
+
+    return await http.get(fullUrl, headers: headers);
+  }
+
+  Future<http.Response> getCity(divisionID) async {
+    var fullUrl = Uri(
+        scheme: "http",
+        host: "139.59.112.145",
+        path: "/api/helper/city/"+divisionID);
+
+    return await http.get(fullUrl, headers: headers);
+  }
+
+  sendClinicStore({data}) async {
     var fullUrl = Uri(
         scheme: "http",
         host: "139.59.112.145",
@@ -83,9 +93,6 @@ class NetWork {
 
     // FormData formData = new FormData.fromMap(data);
 
-    return
-        await http.post(fullUrl, body: json.encode(data), headers: headers);
-
-   
+    return await http.post(fullUrl, body: json.encode(data), headers: headers);
   }
 }
