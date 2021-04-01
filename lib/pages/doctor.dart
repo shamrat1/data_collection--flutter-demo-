@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:data_collection/model/city.dart';
 import 'package:data_collection/postData/api.dart';
 import 'package:data_collection/model/doctorModel.dart';
 import 'package:flutter/cupertino.dart';
@@ -52,6 +53,9 @@ class _DoctorState extends State<Doctor> {
   var errorMessageAddressBangla;
   var errorMessageBmdcCode;
   var errorMessagePhone;
+
+  var cities;
+  var selectedDivisionID;
 
   ///
   // final _formKeytest = GlobalKey<FormState>();
@@ -257,6 +261,18 @@ class _DoctorState extends State<Doctor> {
     return doctor;
   }
 
+  getCities() {
+    NetWork().getCity(selectedDivisionID).then((response) {
+      if (response.statusCode == 200) {
+        var body = jsonDecode(response.body);
+        setState(() {
+          cities = CityData.fromJson(body);
+          print(cities);
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -302,7 +318,6 @@ class _DoctorState extends State<Doctor> {
                       }).toList(),
                       onChanged: (newVal) {
                         var item = data.asMap().values.elementAt(newVal);
-                        divisiondropdown = item['name'].toString();
                         // var selectedCities = data.map((item) {
                         //   print(item['cities']);
 
@@ -312,8 +327,11 @@ class _DoctorState extends State<Doctor> {
                         // });
                         // print(selectedCities);
                         setState(() {
+                          divisiondropdown = item['name'].toString();
                           cityData = item['cities'];
                           _mySelection = item['id'];
+                          selectedDivisionID = item['id'].toString();
+                          getCities();
                           // print(_mySelection);
                         });
                       },
