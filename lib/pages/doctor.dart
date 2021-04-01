@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_collection/postData/api.dart';
 import 'package:data_collection/model/doctorModel.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
-
+import '../constant.dart';
+import '../helperClass/testFacilityField.dart';
 import '../model/doctorModel.dart';
 
 class Doctor extends StatefulWidget {
@@ -20,7 +20,7 @@ class Doctor extends StatefulWidget {
 class _DoctorState extends State<Doctor> {
   List<String> departmentItems = [];
   List<String> visitedHoursItems = [];
-  List<String> testFacilitiesItems = [];
+  List<String> visitedFeesItems = [];
   var baseimage;
   var locationmsg = " ";
   var latmsg = '';
@@ -57,8 +57,8 @@ class _DoctorState extends State<Doctor> {
   // final _formKeytest = GlobalKey<FormState>();
   //final _formKeyservices = GlobalKey<FormState>();
 
-  final _formKeySurgeries = GlobalKey<FormState>();
-
+  final _formKeyVisitHours = GlobalKey<FormState>();
+  final _formKeyVisitFree = GlobalKey<FormState>();
   String servicejson;
   String surgeryjson;
   String testfacilityjson;
@@ -230,11 +230,18 @@ class _DoctorState extends State<Doctor> {
   //var user, user2, user1;
 
   List department = [];
-  List visitHour = [];
+  List<Visit> visitHour = [];
+  List<Visit> visitFee = [];
   List expertises = [];
   List desginations = [];
+///
+  String departmentDropDown = "SELECT Department";
+  String designationsDropDown = "SELECT Department";
+  String expertisesDropDown = "SELECT Department";
+  ///
 
-  fetchDivisons() async {
+
+  fetchDivision() async {
     final response = await http.get(
       Uri(
           scheme: "http",
@@ -242,13 +249,14 @@ class _DoctorState extends State<Doctor> {
           path: "/api/registration/helper/doctor/"),
     );
     final jsonResponse = json.decode(response.body);
+   // print(jsonResponse);
     //Doctor helper = Doctor.fromJson(jsonResponse);
     DoctorHelper doctor = new DoctorHelper.fromJson(jsonResponse);
 
     // for (var i = 0; i < helper.data.surguries.length; i++) {
     //   //  data.add(helper.data.surguries[i].name);
     // }
-    // print(data);
+     print(doctor);
     return doctor;
   }
 
@@ -437,6 +445,8 @@ class _DoctorState extends State<Doctor> {
                       } else {
                         expertises = [];
                         department = [];
+                        visitHour = [];
+                        visitFee= [];
                         desginations = [];
                         for (var i = 0;
                             i < snapshot.data.data.departments.length;
@@ -461,11 +471,17 @@ class _DoctorState extends State<Doctor> {
                         // print("--_____--");
                         // print(desginations);
 
-                        // for (var i = 0;
-                        //     i < snapshot.data.data.testFacilities.length;
-                        //     i++) {
-                        //   user2 = snapshot.data.data.testFacilities[i];
-                        // }
+                        for (var i = 0;
+                            i < snapshot.data.data.visitHours.length;
+                            i++) {
+                          visitHour.add( snapshot.data.data.visitHours[i]);
+                        }
+                        for (var i = 0;
+                        i < snapshot.data.data.visitFees.length;
+                        i++) {
+                          visitFee.add( snapshot.data.data.visitFees[i]);
+                        }
+
                         // print(department);
 
                         return Column(
@@ -481,7 +497,7 @@ class _DoctorState extends State<Doctor> {
                                 children: [
                                   Container(
                                       alignment: Alignment.center,
-                                      child: Text("Department")),
+                                      child: Text("Department", style: textStyle)),
                                   SizedBox(
                                     width: 10,
                                   ),
@@ -496,17 +512,28 @@ class _DoctorState extends State<Doctor> {
                                             isExpanded: true,
                                             icon: Icon(Icons.arrow_drop_down),
                                             hint: Text(
-                                              "  Select department",
+                                              "  $departmentDropDown",
                                               textAlign: TextAlign.center,
                                             ),
-                                            items: [
-                                              for (var i in department)
-                                                DropdownMenuItem(
-                                                  child:
-                                                      Text(i.name.toString()),
-                                                  value: i.id.toString(),
-                                                )
-                                            ],
+                                            // items: department.map((i){
+                                            //     return new DropdownMenuItem(
+                                            //       child: new Text(i.name.toString()),
+                                            //       value: i.id.toString(),
+                                            //     );
+                                            //   }).toList(),
+                                            items: department.map((item) {
+                                              return new DropdownMenuItem(
+                                                child: new Text(item.name),
+                                                value: item.id.toString(),
+                                              );
+                                            }).toList(),
+                                              // for (var i in department)
+                                              //   DropdownMenuItem(
+                                              //     child:
+                                              //         Text(i.name.toString()),
+                                              //     value: i.id.toString(),
+                                              //   )
+
 
                                             // department.map((item) {
                                             //   return new DropdownMenuItem(
@@ -514,12 +541,11 @@ class _DoctorState extends State<Doctor> {
                                             //     value: item['id'].toString(),
                                             //   );
                                             // }).toList(),
-
                                             onChanged: (cityVal) {
                                               // setState(() {
                                               departmantItem = cityVal;
                                               //   });
-                                              // print(departmantItem);
+                                              print(departmantItem);
                                             },
                                             value: departmantItem,
                                           ),
@@ -584,7 +610,7 @@ class _DoctorState extends State<Doctor> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Designations"),
+                                  Text("Designations", style: textStyle),
                                   SizedBox(width: 10),
                                   Container(
                                       width: MediaQuery.of(context).size.width /
@@ -666,13 +692,14 @@ class _DoctorState extends State<Doctor> {
                                 ],
                               ),
                             ),
+                            //expertises
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Expertises"),
+                                  Text("Expertises", style: textStyle),
                                   SizedBox(width: 10),
                                   Container(
                                       width: MediaQuery.of(context).size.width /
@@ -709,90 +736,97 @@ class _DoctorState extends State<Doctor> {
                                 ],
                               ),
                             ),
+//visitHours
+                            Container(
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Visited Hours", style: textStyle),
+                                  Container(
+                                    child: Form(
+                                      key: _formKeyVisitHours,
+                                      child: MultiSelectFormFieldForSurgeries(
+                                        context: context,
+                                        buttonText: 'visitHours',
+                                        itemList: [
+                                          for (var i in visitHour)
+                                            i.id.toString() +
+                                                ") " +
+                                                i.days.toString()
+                                        ],
+                                        questionText: 'Select Your surguries',
+                                        validator: (flavours2) => flavours2
+                                                    .length ==
+                                                0
+                                            ? 'Please select at least one flavor!'
+                                            : null,
+                                        onSaved: (flavours2) {
+                                          visitedHoursItems = flavours2
+                                              .map((e) => e.split(")")[0])
+                                              .toList();
+                              print(visitedHoursItems);
+                           // Logic to save selected flavours in the database
+                                        },
+                                      ),
+                                      onChanged: () {
+                                        if (_formKeyVisitHours.currentState
+                                            .validate()) {
+                                          // Invokes the OnSaved Method
+                                          _formKeyVisitHours.currentState.save();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
 
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //   children: [
-                            //     Text("visitHours"),
-                            //     Container(
-                            //       child: Form(
-                            //         key: _formKeySurgeries,
-                            //         child: MultiSelectFormFieldForSurgeries(
-                            //           context: context,
-                            //           buttonText: 'visitHours',
-                            //           itemList: [
-                            //             for (var i in visitHour)
-                            //               i.id.toString() +
-                            //                   ") " +
-                            //                   i.days.toString()
-                            //           ],
-                            //           questionText: 'Select Your surguries',
-                            //           validator: (flavours2) => flavours2
-                            //                       .length ==
-                            //                   0
-                            //               ? 'Please select at least one flavor!'
-                            //               : null,
-                            //           onSaved: (flavours2) {
-                            //             visitedHoursItems = flavours2
-                            //                 .map((e) => e.split(")")[0])
-                            //                 .toList();
-                            // print(visitedHoursItems);
-                            // Logic to save selected flavours in the database
-                            //           },
-                            //         ),
-                            //         onChanged: () {
-                            //           if (_formKeySurgeries.currentState
-                            //               .validate()) {
-                            //             // Invokes the OnSaved Method
-                            //             _formKeySurgeries.currentState.save();
-                            //           }
-                            //         },
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //   children: [
-                            //     Text("testFacilities"),
-                            //     Container(
-                            //       child: Form(
-                            //         key: _formKeytest,
-                            //         child:
-                            //             MultiSelectFormFieldForTestFacilities(
-                            //           context: context,
-                            //           buttonText: 'testFacilities',
-                            //           itemList: [
-                            //             user2.id.toString() +
-                            //                 ")  " +
-                            //                 user2.name.toString(),
-                            //           ],
-                            //           questionText:
-                            //               'Select Your testFacilities',
-                            //           validator: (flavours3) => flavours3
-                            //                       .length ==
-                            //                   0
-                            // //               ? 'Please select at least one testFacilities!'
-                            //               : null,
-                            //           onSaved: (flavours3) {
-                            //             testFacilitiesItems = flavours3
-                            //                 .map((e) => e.split(")")[0])
-                            //                 .toList();
+                            //visitfree
+                            Container(
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Visit Free", style: textStyle),
+                                  Container(
+                                    child: Form(
+                                      key: _formKeyVisitFree,
+                                      child:
+                                          MultiSelectFormFieldForTestFacilities(
+                                        context: context,
+                                        buttonText: 'Visits Fee',
+                                        itemList: [
+                                          for (var i in visitFee)
+                                            i.id.toString() +
+                                                ") " +
+                                                i.days.toString()
+                                        ],
+                                        questionText:
+                                            'Select Your testFacilities',
+                                        validator: (flavours3) => flavours3.length == 0
+                                           ? 'Please select at least one Visit Free!'
+                                            : null,
+                                        onSaved: (flavours3) {
+                                          visitedFeesItems = flavours3
+                                              .map((e) => e.split(")")[0])
+                                              .toList();
 
-                            //             // Logic to save selected flavours in the database
-                            //           },
-                            //         ),
-                            //         onChanged: () {
-                            //           if (_formKeytest.currentState
-                            //               .validate()) {
-                            //             // Invokes the OnSaved Method
-                            //             _formKeytest.currentState.save();
-                            //           }
-                            //         },
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
+                                          // Logic to save selected flavours in the database
+                                        },
+                                      ),
+                                      onChanged: () {
+                                        if (_formKeyVisitFree.currentState
+                                            .validate()) {
+                                          // Invokes the OnSaved Method
+                                          _formKeyVisitFree.currentState.save();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         );
                       }
@@ -890,6 +924,9 @@ class _DoctorState extends State<Doctor> {
       'bmdc_code': bmdcCode.text,
       'reception_phone': mobileNo.text,
       'image': baseimage,
+      'visiting_hours': visitedHoursItems,
+          'visiting_fees': visitedFeesItems ,
+
     };
 
     var response = await NetWork().sendDoctorStore(data: data);
