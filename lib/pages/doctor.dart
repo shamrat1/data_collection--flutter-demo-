@@ -173,7 +173,7 @@ class _DoctorState extends State<Doctor> {
     var user = resBody['data']['divisions'];
     setState(() {
       data = user;
-      response = new DoctorHelper.fromJson(resBody);
+      response = DoctorHelper.fromJson(resBody);
     });
     return "Sucess";
   }
@@ -204,9 +204,6 @@ class _DoctorState extends State<Doctor> {
     this.getCity();
   }
 
-  //autoCompleteTextView test
-  // var _divisionController = new TextEditingController();
-  // var _cityController = new TextEditingController();
   var uses;
   // for image
   Widget _decideImageView() {
@@ -230,16 +227,17 @@ class _DoctorState extends State<Doctor> {
   //var user, user2, user1;
 
   List department = [];
-  List<Visit> visitHour = [];
-  List<Visit> visitFee = [];
+  List<VisitHour> visitHour = [];
+  List<VisitFee> visitFee = [];
   List expertises = [];
   List desginations = [];
-///
+
+  ///
   String departmentDropDown = "SELECT Department";
   String designationsDropDown = "SELECT Department";
   String expertisesDropDown = "SELECT Department";
-  ///
 
+  ///
 
   fetchDivision() async {
     final response = await http.get(
@@ -249,14 +247,13 @@ class _DoctorState extends State<Doctor> {
           path: "/api/registration/helper/doctor/"),
     );
     final jsonResponse = json.decode(response.body);
-   // print(jsonResponse);
+    // print(jsonResponse);
     //Doctor helper = Doctor.fromJson(jsonResponse);
     DoctorHelper doctor = new DoctorHelper.fromJson(jsonResponse);
 
     // for (var i = 0; i < helper.data.surguries.length; i++) {
     //   //  data.add(helper.data.surguries[i].name);
     // }
-     print(doctor);
     return doctor;
   }
 
@@ -438,7 +435,7 @@ class _DoctorState extends State<Doctor> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 FutureBuilder(
-                    future: response,
+                    future: fetchDivision(),
                     builder: (context, snapshot) {
                       if (snapshot.data == null) {
                         return CupertinoActivityIndicator();
@@ -446,7 +443,7 @@ class _DoctorState extends State<Doctor> {
                         expertises = [];
                         department = [];
                         visitHour = [];
-                        visitFee= [];
+                        visitFee = [];
                         desginations = [];
                         for (var i = 0;
                             i < snapshot.data.data.departments.length;
@@ -474,12 +471,12 @@ class _DoctorState extends State<Doctor> {
                         for (var i = 0;
                             i < snapshot.data.data.visitHours.length;
                             i++) {
-                          visitHour.add( snapshot.data.data.visitHours[i]);
+                          visitHour.add(snapshot.data.data.visitHours[i]);
                         }
                         for (var i = 0;
-                        i < snapshot.data.data.visitFees.length;
-                        i++) {
-                          visitFee.add( snapshot.data.data.visitFees[i]);
+                            i < snapshot.data.data.visitFees.length;
+                            i++) {
+                          visitFee.add(snapshot.data.data.visitFees[i]);
                         }
 
                         // print(department);
@@ -497,7 +494,8 @@ class _DoctorState extends State<Doctor> {
                                 children: [
                                   Container(
                                       alignment: Alignment.center,
-                                      child: Text("Department", style: textStyle)),
+                                      child:
+                                          Text("Department", style: textStyle)),
                                   SizedBox(
                                     width: 10,
                                   ),
@@ -527,13 +525,12 @@ class _DoctorState extends State<Doctor> {
                                                 value: item.id.toString(),
                                               );
                                             }).toList(),
-                                              // for (var i in department)
-                                              //   DropdownMenuItem(
-                                              //     child:
-                                              //         Text(i.name.toString()),
-                                              //     value: i.id.toString(),
-                                              //   )
-
+                                            // for (var i in department)
+                                            //   DropdownMenuItem(
+                                            //     child:
+                                            //         Text(i.name.toString()),
+                                            //     value: i.id.toString(),
+                                            //   )
 
                                             // department.map((item) {
                                             //   return new DropdownMenuItem(
@@ -606,6 +603,7 @@ class _DoctorState extends State<Doctor> {
 //desination
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
+                              width: MediaQuery.of(context).size.width,
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -614,7 +612,7 @@ class _DoctorState extends State<Doctor> {
                                   SizedBox(width: 10),
                                   Container(
                                       width: MediaQuery.of(context).size.width /
-                                          1.6,
+                                          1.7,
                                       margin: const EdgeInsets.only(left: 10),
                                       child: Column(
                                         children: [
@@ -718,9 +716,9 @@ class _DoctorState extends State<Doctor> {
                                             items: [
                                               for (var i in expertises)
                                                 DropdownMenuItem(
-                                                  child: Text(
-                                                      i['name'].toString()),
-                                                  value: i['id'].toString(),
+                                                  child:
+                                                      Text(i.name.toString()),
+                                                  value: i.id.toString(),
                                                 )
                                             ],
                                             onChanged: (cityVal) {
@@ -740,7 +738,8 @@ class _DoctorState extends State<Doctor> {
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Visited Hours", style: textStyle),
                                   Container(
@@ -765,15 +764,16 @@ class _DoctorState extends State<Doctor> {
                                           visitedHoursItems = flavours2
                                               .map((e) => e.split(")")[0])
                                               .toList();
-                              print(visitedHoursItems);
-                           // Logic to save selected flavours in the database
+                                          print(visitedHoursItems);
+                                          // Logic to save selected flavours in the database
                                         },
                                       ),
                                       onChanged: () {
                                         if (_formKeyVisitHours.currentState
                                             .validate()) {
                                           // Invokes the OnSaved Method
-                                          _formKeyVisitHours.currentState.save();
+                                          _formKeyVisitHours.currentState
+                                              .save();
                                         }
                                       },
                                     ),
@@ -786,7 +786,8 @@ class _DoctorState extends State<Doctor> {
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Visit Free", style: textStyle),
                                   Container(
@@ -800,12 +801,16 @@ class _DoctorState extends State<Doctor> {
                                           for (var i in visitFee)
                                             i.id.toString() +
                                                 ") " +
-                                                i.days.toString()
+                                                i.type.toString() +
+                                                " " +
+                                                i.fee.toString()
                                         ],
                                         questionText:
                                             'Select Your testFacilities',
-                                        validator: (flavours3) => flavours3.length == 0
-                                           ? 'Please select at least one Visit Free!'
+                                        validator: (flavours3) => flavours3
+                                                    .length ==
+                                                0
+                                            ? 'Please select at least one Visit Free!'
                                             : null,
                                         onSaved: (flavours3) {
                                           visitedFeesItems = flavours3
@@ -925,8 +930,7 @@ class _DoctorState extends State<Doctor> {
       'reception_phone': mobileNo.text,
       'image': baseimage,
       'visiting_hours': visitedHoursItems,
-          'visiting_fees': visitedFeesItems ,
-
+      'visiting_fees': visitedFeesItems,
     };
 
     var response = await NetWork().sendDoctorStore(data: data);

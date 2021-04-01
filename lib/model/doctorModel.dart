@@ -3,6 +3,7 @@
 //     final doctorHelper = doctorHelperFromJson(jsonString);
 
 import 'dart:convert';
+
 class DoctorHelper {
     DoctorHelper({
         this.status,
@@ -27,6 +28,11 @@ class DoctorHelper {
     };
 }
 
+// To parse this JSON data, do
+//
+//     final welcome = welcomeFromJson(jsonString);
+
+
 class Data {
     Data({
         this.departments,
@@ -41,16 +47,16 @@ class Data {
     List<Department> expertises;
     List<Department> designations;
     List<Division> divisions;
-    List<Visit> visitHours;
-    List<Visit> visitFees;
+    List<VisitHour> visitHours;
+    List<VisitFee> visitFees;
 
     factory Data.fromJson(Map<String, dynamic> json) => Data(
         departments: List<Department>.from(json["departments"].map((x) => Department.fromJson(x))),
         expertises: List<Department>.from(json["expertises"].map((x) => Department.fromJson(x))),
         designations: List<Department>.from(json["designations"].map((x) => Department.fromJson(x))),
         divisions: List<Division>.from(json["divisions"].map((x) => Division.fromJson(x))),
-        visitHours: List<Visit>.from(json["visit_hours"].map((x) => Visit.fromJson(x))),
-        visitFees: List<Visit>.from(json["visit_fees"].map((x) => Visit.fromJson(x))),
+        visitHours: List<VisitHour>.from(json["visit_hours"].map((x) => VisitHour.fromJson(x))),
+        visitFees: List<VisitFee>.from(json["visit_fees"].map((x) => VisitFee.fromJson(x))),
     );
 
     Map<String, dynamic> toJson() => {
@@ -139,8 +145,40 @@ class City {
     };
 }
 
-class Visit {
-    Visit({
+class VisitFee {
+    VisitFee({
+        this.id,
+        this.type,
+        this.fee,
+        this.createdAt,
+        this.updatedAt,
+    });
+
+    int id;
+    String type;
+    String fee;
+    DateTime createdAt;
+    DateTime updatedAt;
+
+    factory VisitFee.fromJson(Map<String, dynamic> json) => VisitFee(
+        id: json["id"],
+        type: json["type"],
+        fee: json["fee"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "id": id,
+        "type": type,
+        "fee": fee,
+        "created_at": createdAt.toIso8601String(),
+        "updated_at": updatedAt.toIso8601String(),
+    };
+}
+
+class VisitHour {
+    VisitHour({
         this.id,
         this.days,
         this.from,
@@ -156,7 +194,7 @@ class Visit {
     DateTime createdAt;
     DateTime updatedAt;
 
-    factory Visit.fromJson(Map<String, dynamic> json) => Visit(
+    factory VisitHour.fromJson(Map<String, dynamic> json) => VisitHour(
         id: json["id"],
         days: json["days"],
         from: json["from"],
