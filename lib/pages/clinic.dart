@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_collection/helperClass/testFacilityField.dart';
 import 'package:data_collection/model/Hospitalmodel.dart';
+import 'package:data_collection/model/city.dart';
 import 'package:data_collection/postData/api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -46,10 +47,14 @@ class _ClinicState extends State<Clinic> {
   final branchName = TextEditingController();
   final mobileNo = TextEditingController();
 
+  var selectedCityID; //city
+  var selectedDivisionID; //city
+  var cities;
+
   // var locationLatitude;
   //var locationLongitude;
 
-   ///
+  ///
 
   var errorMessageHospitalEnglish;
   var errorMessageHospitalBangla;
@@ -112,8 +117,8 @@ class _ClinicState extends State<Clinic> {
   }
 
   void getCurrentLocation() async {
-     var position = await Geolocator.getCurrentPosition(
-         desiredAccuracy: LocationAccuracy.high);
+    var position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     var lastPosition = await Geolocator.getLastKnownPosition();
     //currentlat = lastPosition.latitude;
     //currentlong = lastPosition.longitude;
@@ -124,6 +129,28 @@ class _ClinicState extends State<Clinic> {
       latmsg = lastPosition.latitude.toString();
       longmsg = lastPosition.longitude.toString();
       //locationmsg = lastPosition as String;
+    });
+  }
+
+  DropdownMenuItem<Datum> buildDropdownMenuItem(Datum item) {
+    return DropdownMenuItem(
+      value: item, // you must provide a value
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Text(item.name),
+      ),
+    );
+  }
+
+  getCities() {
+    NetWork().getCity(selectedDivisionID).then((response) {
+      if (response.statusCode == 200) {
+        var body = jsonDecode(response.body);
+        setState(() {
+          cities = CityData.fromJson(body);
+          print(cities);
+        });
+      }
     });
   }
 
@@ -258,8 +285,8 @@ class _ClinicState extends State<Clinic> {
               //margin: const EdgeInsets.only(bottom:5.0),
               child: TextField(
                 controller: hospitalNameEng,
-                decoration:
-                    InputDecoration(hintText: 'Hospital Name In English',
+                decoration: InputDecoration(
+                    hintText: 'Name In English',
                     errorText: errorMessageHospitalEnglish),
               ),
               padding: EdgeInsets.all(10.0),
@@ -268,11 +295,9 @@ class _ClinicState extends State<Clinic> {
             Container(
               child: TextField(
                 controller: hospitalNameBang,
-                decoration:
-                    InputDecoration(hintText: 'Hospital Name In Bangla',
-                    errorText: errorMessageHospitalBangla
-                    
-                    ),
+                decoration: InputDecoration(
+                    hintText: 'Name In Bangla',
+                    errorText: errorMessageHospitalBangla),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -286,20 +311,24 @@ class _ClinicState extends State<Clinic> {
                       underline: SizedBox(),
                       isExpanded: true,
                       icon: Icon(Icons.arrow_drop_down),
-                      hint: Text("  $divisiondropdown"),
-                      items: data.map((item) {
+                      hint: Text(divisiondropdown),
+                      items: data.asMap().entries.map((item) {
+                        // print(item);
                         return new DropdownMenuItem(
-                          child: new Text(item['name']),
-                          value: item['id'].toString(),
+                          child: new Text(item.value['name']),
+                          value: [item.value['id'], item.value['name']],
                         );
                       }).toList(),
                       onChanged: (newVal) {
                         setState(() {
-                          _mySelection = newVal;
-                          print(_mySelection);
+                          divisiondropdown = newVal[1].toString();
+                          selectedDivisionID = newVal[0].toString();
+                          citydropdown = "Select Area";
+                          selectedCityID = null;
+                          cities = null;
+                          getCities();
                         });
                       },
-                      value: _mySelection,
                     ),
                   ],
                 )),
@@ -309,33 +338,35 @@ class _ClinicState extends State<Clinic> {
                 margin: const EdgeInsets.all(30.0),
                 child: Column(
                   children: [
-                    new DropdownButton(
-                      underline: SizedBox(),
-                      isExpanded: true,
-                      icon: Icon(Icons.arrow_drop_down),
-                      hint: Text("  $citydropdown"),
-                      items: data.map((item) {
-                        return new DropdownMenuItem(
-                          child: new Text(item['name']),
-                          value: item['id'].toString(),
-                        );
-                      }).toList(),
-                      onChanged: (cityVal) {
-                        setState(() {
-                          _citySelection = cityVal;
-                        });
-                      },
-                      value: _citySelection,
-                    ),
+                    if (cities != null)
+                      new DropdownButton(
+                        underline: SizedBox(),
+                        isExpanded: true,
+                        icon: Icon(Icons.arrow_drop_down),
+                        hint: Text(citydropdown),
+                        items: cities.data
+                            .map<DropdownMenuItem<dynamic>>(
+                                (item) => buildDropdownMenuItem(item))
+                            .toList(),
+                        onChanged: (cityVal) {
+                          // print(cityVal.name);
+                          setState(() {
+                            citydropdown = cityVal.name.toString();
+                            selectedCityID = cityVal.id.toString();
+                          });
+                          // print(_citySelection);
+                        },
+                        // value: selectedCityID,
+                      ),
                   ],
                 )),
             //address
             Container(
               child: TextField(
                 controller: addressInEng,
-                decoration: InputDecoration(hintText: 'Address In English',
-                errorText: errorMessageAddressEnglish
-                ),
+                decoration: InputDecoration(
+                    hintText: 'Address In English',
+                    errorText: errorMessageAddressEnglish),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -343,9 +374,9 @@ class _ClinicState extends State<Clinic> {
             Container(
               child: TextField(
                 controller: addressInBng,
-                decoration: InputDecoration(hintText: 'Address In Bangla',
-                
-                errorText: errorMessageAddressBangla),
+                decoration: InputDecoration(
+                    hintText: 'Address In Bangla',
+                    errorText: errorMessageAddressBangla),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -397,9 +428,8 @@ class _ClinicState extends State<Clinic> {
             Container(
               child: TextField(
                 controller: branchName,
-                decoration: InputDecoration(hintText: 'Branch Name',
-                errorText: errorMessageBranchName
-                ),
+                decoration: InputDecoration(
+                    hintText: 'Branch Name', errorText: errorMessageBranchName),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -407,8 +437,8 @@ class _ClinicState extends State<Clinic> {
             Container(
               child: TextField(
                 controller: mobileNo,
-                decoration: InputDecoration(hintText: 'Reception No',
-                errorText: errorMessagePhone),
+                decoration: InputDecoration(
+                    hintText: 'Reception No', errorText: errorMessagePhone),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -448,7 +478,8 @@ class _ClinicState extends State<Clinic> {
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Services", style: textStyle),
                                   Container(
@@ -498,7 +529,8 @@ class _ClinicState extends State<Clinic> {
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Surguries", style: textStyle),
                                   Container(
@@ -543,7 +575,8 @@ class _ClinicState extends State<Clinic> {
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Test Facilities", style: textStyle),
                                   Container(
@@ -705,13 +738,13 @@ class _ClinicState extends State<Clinic> {
       )..show();
     } else {
       errorMessageHospitalEnglish = body['data']['name'].toString();
-       errorMessageHospitalBangla = body['data']['name_bn'].toString();
+      errorMessageHospitalBangla = body['data']['name_bn'].toString();
       // print(errorMessageHospitalEnglish);
 
       errorMessageAddressEnglish = body['data']['address_line_1'].toString();
-    errorMessageAddressBangla = body['data']['address_line_2'].toString();
+      errorMessageAddressBangla = body['data']['address_line_2'].toString();
       errorMessageBranchName = body['data']['branch_name'].toString();
-       errorMessagePhone = body['data']['reception_phone'].toString();
+      errorMessagePhone = body['data']['reception_phone'].toString();
       showMessage = body['msg'];
       AwesomeDialog(
         context: context,

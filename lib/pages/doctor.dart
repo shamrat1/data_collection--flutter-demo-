@@ -35,8 +35,7 @@ class _DoctorState extends State<Doctor> {
   final hospitalNameEng = TextEditingController();
   final hospitalNameBang = TextEditingController();
   //dropdown
-  var _mySelection; //division
-  var _citySelection; //city
+  var selectedCityID; //city
   final addressInEng = TextEditingController();
   final addressInBng = TextEditingController();
   final bmdcCode = TextEditingController();
@@ -55,7 +54,7 @@ class _DoctorState extends State<Doctor> {
   var errorMessagePhone;
 
   var cities;
-  var selectedDivisionID;
+  var selectedDivisionID = "1";
 
   ///
   // final _formKeytest = GlobalKey<FormState>();
@@ -76,54 +75,10 @@ class _DoctorState extends State<Doctor> {
 
   int linktestdevices = 1;
   String dropdownvalue = "SELECT FROM DROPDOWN";
-  String divisiondropdown = "Select Division";
+  String divisiondropdown = "Dhaka";
   String citydropdown = "Select Area";
   String testgorir = "Select testgorir";
   List serviceList = [];
-
-  // for map
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permantly denied, we cannot request permissions.');
-    }
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return Future.error(
-            'Location permissions are denied (actual value: $permission).');
-      }
-    }
-
-    return await Geolocator.getCurrentPosition();
-  }
-
-  void getCurrentLocation() async {
-    var position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    var lastPosition = await Geolocator.getLastKnownPosition();
-    //currentlat = lastPosition.latitude;
-    //currentlong = lastPosition.longitude;
-    print(lastPosition);
-
-    setState(() {
-      // locationmsg = "$position.latitude";
-      latmsg = lastPosition.latitude.toString();
-      longmsg = lastPosition.longitude.toString();
-      //locationmsg = lastPosition as String;
-    });
-  }
 
   var departmantItem;
   var designationItems;
@@ -173,7 +128,7 @@ class _DoctorState extends State<Doctor> {
   Future<String> getSWData() async {
     var res = await http.get(url, headers: {"Accept": "application/json"});
     resBody = json.decode(res.body);
-    print(resBody);
+    // print(resBody);
     var user = resBody['data']['divisions'];
     setState(() {
       data = user;
@@ -206,6 +161,7 @@ class _DoctorState extends State<Doctor> {
     super.initState();
     this.getSWData();
     this.getCity();
+    this.getCities();
   }
 
   var uses;
@@ -311,31 +267,22 @@ class _DoctorState extends State<Doctor> {
                       icon: Icon(Icons.arrow_drop_down),
                       hint: Text(divisiondropdown),
                       items: data.asMap().entries.map((item) {
+                        // print(item);
                         return new DropdownMenuItem(
                           child: new Text(item.value['name']),
-                          value: item.key,
+                          value: [item.value['id'], item.value['name']],
                         );
                       }).toList(),
                       onChanged: (newVal) {
-                        var item = data.asMap().values.elementAt(newVal);
-                        // var selectedCities = data.map((item) {
-                        //   print(item['cities']);
-
-                        //   if (newVal == item['id']) {
-                        //     return item['cities'];
-                        //   }
-                        // });
-                        // print(selectedCities);
                         setState(() {
-                          divisiondropdown = item['name'].toString();
-                          cityData = item['cities'];
-                          _mySelection = item['id'];
-                          selectedDivisionID = item['id'].toString();
+                          divisiondropdown = newVal[1].toString();
+                          selectedDivisionID = newVal[0].toString();
+                          citydropdown = "Select Area";
+                          selectedCityID = null;
+                          cities = null;
                           getCities();
-                          // print(_mySelection);
                         });
                       },
-                      value: _mySelection,
                     ),
                   ],
                 )),
@@ -345,25 +292,26 @@ class _DoctorState extends State<Doctor> {
                 margin: const EdgeInsets.all(30.0),
                 child: Column(
                   children: [
-                    new DropdownButton(
-                      underline: SizedBox(),
-                      isExpanded: true,
-                      icon: Icon(Icons.arrow_drop_down),
-                      hint: Text("  $citydropdown"),
-                      items: cityData.map((item) {
-                        return new DropdownMenuItem(
-                          child: new Text(item['name']),
-                          value: item['id'].toString(),
-                        );
-                      }).toList(),
-                      onChanged: (cityVal) {
-                        // setState(() {
-                        _citySelection = cityVal;
-                        // });
-                        // print(_citySelection);
-                      },
-                      value: _citySelection,
-                    ),
+                    if (cities != null)
+                      new DropdownButton(
+                        underline: SizedBox(),
+                        isExpanded: true,
+                        icon: Icon(Icons.arrow_drop_down),
+                        hint: Text(citydropdown),
+                        items: cities.data
+                            .map<DropdownMenuItem<dynamic>>(
+                                (item) => buildDropdownMenuItem(item))
+                            .toList(),
+                        onChanged: (cityVal) {
+                          // print(cityVal.name);
+                          setState(() {
+                            citydropdown = cityVal.name.toString();
+                            selectedCityID = cityVal.id.toString();
+                          });
+                          // print(_citySelection);
+                        },
+                        // value: selectedCityID,
+                      ),
                   ],
                 )),
             //address
@@ -618,7 +566,6 @@ class _DoctorState extends State<Doctor> {
                                 ],
                               ),
                             ),
-//desination
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               width: MediaQuery.of(context).size.width,
@@ -886,7 +833,7 @@ class _DoctorState extends State<Doctor> {
                 controller: _notesController,
                 decoration: InputDecoration(
                     labelText: "Notes",
-                    hintText: 'Give us your feeling of thought',
+                    // hintText: 'Give us your feeling of thought',
                     border: OutlineInputBorder()),
                 maxLines: null,
                 expands: true,
@@ -928,14 +875,68 @@ class _DoctorState extends State<Doctor> {
     );
   }
 
+  // for map
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permantly denied, we cannot request permissions.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return Future.error(
+            'Location permissions are denied (actual value: $permission).');
+      }
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  void getCurrentLocation() async {
+    var position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    var lastPosition = await Geolocator.getLastKnownPosition();
+    //currentlat = lastPosition.latitude;
+    //currentlong = lastPosition.longitude;
+    print(lastPosition);
+
+    setState(() {
+      // locationmsg = "$position.latitude";
+      latmsg = lastPosition.latitude.toString();
+      longmsg = lastPosition.longitude.toString();
+      //locationmsg = lastPosition as String;
+    });
+  }
+
+  DropdownMenuItem<Datum> buildDropdownMenuItem(Datum item) {
+    return DropdownMenuItem(
+      value: item, // you must provide a value
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Text(item.name),
+      ),
+    );
+  }
+
   //testFacilities: testFacilitiesItems,
 
   _sendDoctor() async {
     var data = {
       'name': hospitalNameEng.text,
       'name_bn': hospitalNameBang.text,
-      'city_id': _citySelection.toString(),
-      'division_id': _mySelection.toString(),
+      'city_id': selectedCityID,
+      'division_id': selectedDivisionID,
       'address_line_1': addressInEng.text,
       'address_line_2': addressInBng.text,
       'department_id': departmentItems,
@@ -958,8 +959,8 @@ class _DoctorState extends State<Doctor> {
     var body = json.decode(response.body);
     if (response.statusCode == 200) {
       showMessage = body['msg'];
-      print(data);
-      print(body);
+      // print(data);
+      // print(body);
       AwesomeDialog(
         context: context,
         dialogType: DialogType.INFO,

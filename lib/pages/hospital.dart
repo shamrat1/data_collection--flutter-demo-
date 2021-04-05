@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:data_collection/helperClass/testFacilityField.dart';
 import 'package:data_collection/model/Hospitalmodel.dart';
+import 'package:data_collection/model/city.dart';
 import 'package:data_collection/postData/api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -82,6 +83,10 @@ class _HospitalState extends State<Hospital> {
   String citydropdown = "Select Area";
   String testgorir = "Select testgorir";
   List serviceList = [];
+
+  var selectedCityID; //city
+  var selectedDivisionID; //city
+  var cities;
 
   // for map
   Future<Position> _determinePosition() async {
@@ -286,20 +291,24 @@ class _HospitalState extends State<Hospital> {
                       underline: SizedBox(),
                       isExpanded: true,
                       icon: Icon(Icons.arrow_drop_down),
-                      hint: Text("  $divisiondropdown"),
-                      items: data.map((item) {
+                      hint: Text(divisiondropdown),
+                      items: data.asMap().entries.map((item) {
+                        // print(item);
                         return new DropdownMenuItem(
-                          child: new Text(item['name']),
-                          value: item['id'].toString(),
+                          child: new Text(item.value['name']),
+                          value: [item.value['id'], item.value['name']],
                         );
                       }).toList(),
                       onChanged: (newVal) {
                         setState(() {
-                          _mySelection = newVal;
-                          print(_mySelection);
+                          divisiondropdown = newVal[1].toString();
+                          selectedDivisionID = newVal[0].toString();
+                          citydropdown = "Select Area";
+                          selectedCityID = null;
+                          cities = null;
+                          getCities();
                         });
                       },
-                      value: _mySelection,
                     ),
                   ],
                 )),
@@ -309,32 +318,35 @@ class _HospitalState extends State<Hospital> {
                 margin: const EdgeInsets.all(30.0),
                 child: Column(
                   children: [
-                    new DropdownButton(
-                      underline: SizedBox(),
-                      isExpanded: true,
-                      icon: Icon(Icons.arrow_drop_down),
-                      hint: Text("  $citydropdown"),
-                      items: data.map((item) {
-                        return new DropdownMenuItem(
-                          child: new Text(item['name']),
-                          value: item['id'].toString(),
-                        );
-                      }).toList(),
-                      onChanged: (cityVal) {
-                        setState(() {
-                          _citySelection = cityVal;
-                        });
-                      },
-                      value: _citySelection,
-                    ),
+                    if (cities != null)
+                      new DropdownButton(
+                        underline: SizedBox(),
+                        isExpanded: true,
+                        icon: Icon(Icons.arrow_drop_down),
+                        hint: Text(citydropdown),
+                        items: cities.data
+                            .map<DropdownMenuItem<dynamic>>(
+                                (item) => buildDropdownMenuItem(item))
+                            .toList(),
+                        onChanged: (cityVal) {
+                          // print(cityVal.name);
+                          setState(() {
+                            citydropdown = cityVal.name.toString();
+                            selectedCityID = cityVal.id.toString();
+                          });
+                          // print(_citySelection);
+                        },
+                        // value: selectedCityID,
+                      ),
                   ],
                 )),
             //address
             Container(
               child: TextField(
                 controller: addressInEng,
-                decoration: InputDecoration(hintText: 'Address In English',
-                errorText: errorMessageAddressEnglish,
+                decoration: InputDecoration(
+                  hintText: 'Address In English',
+                  errorText: errorMessageAddressEnglish,
                 ),
               ),
               padding: EdgeInsets.all(10.0),
@@ -342,10 +354,11 @@ class _HospitalState extends State<Hospital> {
             //address
             Container(
               child: TextField(
-                controller: addressInBng,
-                decoration: InputDecoration(hintText: 'Address In Bangla',
-                errorText: errorMessageAddressBangla,)
-              ),
+                  controller: addressInBng,
+                  decoration: InputDecoration(
+                    hintText: 'Address In Bangla',
+                    errorText: errorMessageAddressBangla,
+                  )),
               padding: EdgeInsets.all(10.0),
             ),
             //Location
@@ -396,9 +409,8 @@ class _HospitalState extends State<Hospital> {
             Container(
               child: TextField(
                 controller: branchName,
-                decoration: InputDecoration(hintText: 'Branch Name',
-                errorText: errorMessageBranchName
-                ),
+                decoration: InputDecoration(
+                    hintText: 'Branch Name', errorText: errorMessageBranchName),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -406,10 +418,8 @@ class _HospitalState extends State<Hospital> {
             Container(
               child: TextField(
                 controller: mobileNo,
-                decoration: InputDecoration(hintText: 'Reception No',
-                errorText: errorMessagePhone
-                
-                ),
+                decoration: InputDecoration(
+                    hintText: 'Reception No', errorText: errorMessagePhone),
               ),
               padding: EdgeInsets.all(10.0),
             ),
@@ -449,7 +459,8 @@ class _HospitalState extends State<Hospital> {
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Services", style: textStyle),
                                   Container(
@@ -501,7 +512,8 @@ class _HospitalState extends State<Hospital> {
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Surguries", style: textStyle),
                                   Container(
@@ -545,7 +557,8 @@ class _HospitalState extends State<Hospital> {
                             Container(
                               margin: EdgeInsets.only(left: 10, right: 10),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Test Facilities", style: textStyle),
                                   Container(
@@ -666,6 +679,28 @@ class _HospitalState extends State<Hospital> {
     );
   }
 
+  DropdownMenuItem<Datum> buildDropdownMenuItem(Datum item) {
+    return DropdownMenuItem(
+      value: item, // you must provide a value
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Text(item.name),
+      ),
+    );
+  }
+
+  getCities() {
+    NetWork().getCity(selectedDivisionID).then((response) {
+      if (response.statusCode == 200) {
+        var body = jsonDecode(response.body);
+        setState(() {
+          cities = CityData.fromJson(body);
+          print(cities);
+        });
+      }
+    });
+  }
+
   _sendHospital() async {
     var data = {
       'name': hospitalNameEng.text,
@@ -708,14 +743,14 @@ class _HospitalState extends State<Hospital> {
         btnOkOnPress: () {},
       )..show();
     } else {
-        errorMessageHospitalEnglish = body['data']['name'].toString();
-       errorMessageHospitalBangla = body['data']['name_bn'].toString();
+      errorMessageHospitalEnglish = body['data']['name'].toString();
+      errorMessageHospitalBangla = body['data']['name_bn'].toString();
       // print(errorMessageHospitalEnglish);
 
       errorMessageAddressEnglish = body['data']['address_line_1'].toString();
-    errorMessageAddressBangla = body['data']['address_line_2'].toString();
+      errorMessageAddressBangla = body['data']['address_line_2'].toString();
       errorMessageBranchName = body['data']['branch_name'].toString();
-       errorMessagePhone = body['data']['reception_phone'].toString();
+      errorMessagePhone = body['data']['reception_phone'].toString();
 
       showMessage = body['msg'];
       print(body);
